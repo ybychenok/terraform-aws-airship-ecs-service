@@ -32,7 +32,7 @@ module "demo-web" {
   }
 
   container_properties = [{
-    image_url  = "861769473120.dkr.ecr.eu-central-1.amazonaws.com/demo:latest"
+    image_url  = "account.dkr.ecr.eu-central-1.amazonaws.com/demo:latest"
     port       = "3000"
     health_uri = "/ping"
     mem        = "512"
