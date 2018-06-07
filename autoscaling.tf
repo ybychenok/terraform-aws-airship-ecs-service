@@ -1,6 +1,6 @@
 locals {
-   ecs_service_name = "${local.awsvpc_enabled ? join("",aws_ecs_service.app-with-lb-awsvpc.*.name) : join("",aws_ecs_service.app-with-lb.*.name) }"
    cluster_plus_service_name = "${local.cluster_name}-${local.ecs_service_name}"
+   ecs_service_name = "${local.awsvpc_enabled ? join("",aws_ecs_service.app-with-lb-awsvpc.*.name) : join("",aws_ecs_service.app-with-lb.*.name) }"
 }
 
 resource "aws_appautoscaling_target" "target" {

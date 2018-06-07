@@ -16,7 +16,6 @@ variable "load_balancing_properties" {
     alb_attached          = true
     lb_listener_arn       = ""
     lb_listener_arn_https = ""
-    lb_priority           = ""
     lb_vpc_id             = ""
     route53_zone_id       = ""
     health_uri            = "/ping"

@@ -35,7 +35,6 @@ locals {
   lb_arn                = "${lookup(var.load_balancing_properties,"lb_arn", "")}"
   lb_listener_arn       = "${lookup(var.load_balancing_properties,"lb_listener_arn", "")}"
   lb_listener_arn_https = "${lookup(var.load_balancing_properties,"lb_listener_arn_https", "")}"
-  lb_priority           = "${lookup(var.load_balancing_properties,"lb_priority", 100)}"
 
   container_port = "${lookup(var.container_properties[0], "port")}"
 
@@ -77,7 +76,6 @@ resource "aws_lb_listener_rule" "host_based_routing" {
   count = "${local.lb_attached == "1" ? 1 : 0}"
 
   listener_arn = "${local.lb_listener_arn}"
-  priority     = "${local.lb_priority}"
 
   action {
     type             = "forward"
@@ -96,7 +94,6 @@ resource "aws_lb_listener_rule" "host_based_routing-ssl" {
   count = "${local.lb_attached == "1" ? 1 : 0}"
 
   listener_arn = "${local.lb_listener_arn_https}"
-  priority     = "${local.lb_priority}"
 
   action {
     type             = "forward"

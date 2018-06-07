@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "ecs_task_asume_role" {
 # The ECS TASK ROLE execution role needed for FARGATE & AWS LOGS
 resource "aws_iam_role" "ecs_task_execution_role" {
   count              = "${local.fargate_enabled ? 1 : 0}"
-  name               = "${local.cluster_name}-ecs_task_execution_role"
+  name               = "${local.cluster_name}-${var.name}-ecs-task-execution_role"
   assume_role_policy = "${data.aws_iam_policy_document.ecs_task_asume_role.json}"
 }
 
