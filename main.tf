@@ -47,7 +47,8 @@ locals {
   scaling_enabled      = "${length(var.scaling_properties) > 0 ? true : false }"
   desired_capacity     = "${lookup(var.capacity_properties,"desired_capacity", 2)}"
   desired_min_capacity = "${lookup(var.capacity_properties,"desired_min_capacity", 2)}"
-  desired_max_capacity = "${lookup(var.capacity_properties,"desired_max_capacity", 2)}"
+  deployment_maximum_percent = "${lookup(var.capacity_properties,"deployment_maximum_percent", 200)}"
+  deployment_minimum_healthy_percent = "${lookup(var.capacity_properties,"deployment_minimum_healthy_percent", 0)}"
 }
 
 ##
@@ -69,7 +70,6 @@ resource "aws_lb_target_group" "service" {
 
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
-## An aws_lb_listener_rule will only be created when a service is not a default service
 resource "aws_lb_listener_rule" "host_based_routing" {
   count = "${local.lb_attached == "1" ? 1 : 0}"
 
@@ -89,7 +89,6 @@ resource "aws_lb_listener_rule" "host_based_routing" {
 
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
-## An aws_lb_listener_rule will only be created when a service is not a default service
 resource "aws_lb_listener_rule" "host_based_routing-ssl" {
   count = "${local.lb_attached == "1" ? 1 : 0}"
 
@@ -171,8 +170,8 @@ resource "aws_ecs_service" "app-with-lb-awsvpc" {
   desired_count = "${local.desired_capacity}"
   launch_type   = "${local.fargate_enabled ? "FARGATE" : "EC2"}"
 
-  deployment_maximum_percent         = "${var.deployment_maximum_percent}"
-  deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
+  deployment_maximum_percent         = "${local.deployment_maximum_percent}"
+  deployment_minimum_healthy_percent = "${local.deployment_minimum_healthy_percent}"
 
   load_balancer {
     target_group_arn = "${aws_lb_target_group.service.id}"
@@ -199,8 +198,8 @@ resource "aws_ecs_service" "app-with-lb" {
 
   desired_count = "${local.desired_capacity}"
 
-  deployment_maximum_percent         = "${var.deployment_maximum_percent}"
-  deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
+  deployment_maximum_percent         = "${local.deployment_maximum_percent}"
+  deployment_minimum_healthy_percent = "${local.deployment_minimum_healthy_percent}"
 
   load_balancer {
     target_group_arn = "${aws_lb_target_group.service.id}"

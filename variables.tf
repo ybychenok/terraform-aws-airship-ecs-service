@@ -31,6 +31,8 @@ variable "capacity_properties" {
     desired_capacity     = "2"
     desired_min_capacity = "2"
     desired_max_capacity = "5"
+    deployment_maximum_percent = "200"
+    deployment_minimum_healthy_percent = "0"
   }
 }
 
@@ -47,79 +49,10 @@ variable "task_type" {
   default     = "web"
 }
 
-variable "desired_capacity" {
-  default = "2"
-}
-
-variable "autoscaling_enabled" {
-  default = "0"
-}
-
-variable "desired_min_capacity" {
-  default = "2"
-}
-
-variable "desired_max_capacity" {
-  default = "2"
-}
-
-variable "autoscale_period_high" {
-  default = "300"
-}
-
-variable "autoscale_period_low" {
-  default = "180"
-}
-
-variable "autoscale_cpu_lowthreshold" {
-  default = "5"
-}
-
-variable "autoscale_cpu_highthreshold" {
-  default = "30"
-}
-
-variable "autoscale_cpu_low_evaluation_periods" {
-  default = "1"
-}
-
-variable "autoscale_cpu_high_evaluation_periods" {
-  default = "1"
-}
-
-variable "aws_zone_id" {
-  default = ""
-}
-
 ####
 
 variable "name" {
   description = "The name of the project, must be unique ."
-}
-
-variable "container_port" {
-  default     = "3000"
-  description = "The name of the project, must be unique ."
-}
-
-variable "cpu" {
-  default = "256"
-}
-
-variable "mem" {
-  default = "512"
-}
-
-variable "deployment_maximum_percent" {
-  default = "150"
-}
-
-variable "deployment_minimum_healthy_percent" {
-  default = "50"
-}
-
-variable "launch_type" {
-  default = "EC2"
 }
 
 variable "kms_keys" {
@@ -148,10 +81,6 @@ variable "s3_ro_paths" {
 
 variable "s3_rw_paths" {
   default = []
-}
-
-variable "target_group_target_type" {
-  default = "instance"
 }
 
 variable "direction" {
