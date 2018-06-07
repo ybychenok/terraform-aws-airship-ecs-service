@@ -37,6 +37,8 @@ locals {
   lb_listener_arn_https = "${lookup(var.load_balancing_properties,"lb_listener_arn_https", "")}"
   lb_priority           = "${lookup(var.load_balancing_properties,"lb_priority", 100)}"
 
+  container_port = "${lookup(var.container_properties[0], "port")}"
+
   lb_vpc_id       = "${lookup(var.load_balancing_properties,"lb_vpc_id", "")}"
   route53_zone_id = "${lookup(var.load_balancing_properties,"route53_zone_id", "")}"
   route53_name    = "${var.name}.${data.aws_route53_zone.selected.name}"
@@ -129,8 +131,8 @@ data "template_file" "task_definition" {
     mem              = "${lookup(var.container_properties[count.index], "mem")}"
     envvars          = ""
     container_name   = "${local.cluster_name}-${var.name}"
-    container_port   = "${var.container_port}"
-    host_port        = "${var.awsvpc_enabled == 1 ? var.container_port : "0" }"
+    container_port   = "${local.container_port}"
+    host_port        = "${var.awsvpc_enabled == 1 ? local.container_port : "0" }"
     discovery_name   = "${var.name}"
     hostname_block   = "${var.awsvpc_enabled == 0 ? "\"hostname\":\"${local.cluster_name}-${var.name}-${count.index}\",\n" :""}"
     log_group_region = "${data.aws_region.current.name}"
@@ -176,7 +178,7 @@ resource "aws_ecs_service" "app-with-lb-awsvpc" {
   load_balancer {
     target_group_arn = "${aws_lb_target_group.service.id}"
     container_name   = "${local.cluster_name}-${var.name}"
-    container_port   = "${var.container_port}"
+    container_port   = "${local.container_port}"
   }
 
   lifecycle {
@@ -204,7 +206,7 @@ resource "aws_ecs_service" "app-with-lb" {
   load_balancer {
     target_group_arn = "${aws_lb_target_group.service.id}"
     container_name   = "${local.cluster_name}-${var.name}"
-    container_port   = "${var.container_port}"
+    container_port   = "${local.container_port}"
   }
 
   lifecycle {
