@@ -49,6 +49,7 @@ locals {
   scaling_enabled      = "${length(var.scaling_properties) > 0 ? true : false }"
   desired_capacity     = "${lookup(var.capacity_properties,"desired_capacity", 2)}"
   desired_min_capacity = "${lookup(var.capacity_properties,"desired_min_capacity", 2)}"
+  desired_max_capacity = "${lookup(var.capacity_properties,"desired_max_capacity", 2)}"
   deployment_maximum_percent = "${lookup(var.capacity_properties,"deployment_maximum_percent", 200)}"
   deployment_minimum_healthy_percent = "${lookup(var.capacity_properties,"deployment_minimum_healthy_percent", 0)}"
 }
