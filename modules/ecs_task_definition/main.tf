@@ -1,9 +1,18 @@
 variable "name" {}
-variable "container_properties" {}
+variable "cluster_name" {}
+
+variable "container_properties" {
+  type = "list"
+}
+
 variable "awsvpc_enabled" {}
 variable "fargate_enabled" {}
 variable "cloudwatch_loggroup_name" {}
-variable "container_envvars" {}
+
+variable "container_envvars" {
+  default = []
+}
+
 variable "ecs_taskrole_arn" {}
 variable "ecs_task_execution_role_arn" {}
 variable "region" {}
@@ -51,7 +60,7 @@ data "template_file" "task_definition" {
 
     container_name   = "${lookup(var.container_properties[count.index], "name")}"
     discovery_name   = "${var.name}"
-    hostname_block   = "${var.awsvpc_enabled == 0 ? "\"hostname\":\"${local.cluster_name}-${var.name}-${count.index}\",\n" :""}"
+    hostname_block   = "${var.awsvpc_enabled == 0 ? "\"hostname\":\"${var.cluster_name}-${var.name}-${count.index}\",\n" :""}"
     log_group_region = "${var.region}"
     log_group_name   = "${var.cloudwatch_loggroup_name}"
     log_group_stream = "${lookup(var.container_properties[count.index], "name")}"

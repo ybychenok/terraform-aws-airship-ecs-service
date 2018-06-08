@@ -13,7 +13,10 @@ variable "ecs_service_name" {}
 variable "create" {}
 variable "desired_min_capacity" {}
 variable "desired_max_capacity" {}
-variable "scaling_properties" {}
+
+variable "scaling_properties" {
+  default = []
+}
 
 locals {
   cluster_plus_service_name = "${var.cluster_name}-${var.ecs_service_name}"

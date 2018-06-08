@@ -30,10 +30,12 @@ module "iam" {
 module "alb_handling" {
   source                = "./modules/alb_handling/"
   name                  = "${var.name}"
+  cluster_name          = "${local.cluster_name}"
   create                = "${var.create}"
   lb_arn                = "${lookup(var.load_balancing_properties,"lb_arn", "")}"
   lb_listener_arn       = "${lookup(var.load_balancing_properties,"lb_listener_arn", "")}"
   lb_listener_arn_https = "${lookup(var.load_balancing_properties,"lb_listener_arn_https", "")}"
+  unhealthy_threshold   = "${lookup(var.load_balancing_properties,"lb_listener_arn_https", var.default_load_balancing_properties_unhealthy_threshold)}"
   create_route53_zone   = true
   custom_listen_host    = "${lookup(var.load_balancing_properties,"custom_listen_host", "")}"
   health_uri            = "${lookup(var.load_balancing_properties,"health_uri", var.default_load_balancing_properties_health_uri)}"
@@ -51,6 +53,7 @@ resource "aws_cloudwatch_log_group" "app" {
 module "ecs_task_definition" {
   source                      = "./modules/ecs_task_definition/"
   name                        = "${local.cluster_name}-${var.name}"
+  cluster_name            = "${local.cluster_name}"
   container_properties        = "${var.container_properties}"
   awsvpc_enabled              = "${local.awsvpc_enabled}"
   fargate_enabled             = "${local.fargate_enabled}"
