@@ -1,5 +1,47 @@
+variable "create" {
+  default = "false"
+}
+
+variable "region" {
+  default = ""
+}
+
+variable "name" {
+  default = ""
+}
+
+variable "fargate_enabled" {
+  default = false
+}
+
+# List of KMS keys the task has access to
+variable "kms_keys" {
+  default = []
+}
+
+# List of SSM Paths the task has access to
+variable "ssm_paths" {
+  default = []
+}
+
+# S3 Read-only paths the Task has access to
+variable "s3_ro_paths" {
+  default = []
+}
+
+# S3 Read-write paths the Task has access to
+variable "s3_rw_paths" {
+  default = []
+}
+
+data "aws_caller_identity" "current" {
+  count = "${var.create}"
+}
+
 # Asume Role Policy for the ECS Task
 data "aws_iam_policy_document" "ecs_task_asume_role" {
+  count = "${var.create}"
+
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
@@ -13,26 +55,29 @@ data "aws_iam_policy_document" "ecs_task_asume_role" {
 
 # The ECS TASK ROLE execution role needed for FARGATE & AWS LOGS
 resource "aws_iam_role" "ecs_task_execution_role" {
-  count              = "${local.fargate_enabled ? 1 : 0}"
-  name               = "${local.cluster_name}-${var.name}-ecs-task-execution_role"
+  count              = "${var.create * (var.fargate_enabled ? 1 : 0)}"
+  name               = "${var.name}-ecs-task-execution_role"
   assume_role_policy = "${data.aws_iam_policy_document.ecs_task_asume_role.json}"
 }
 
 # We need this for FARGATE
 resource "aws_iam_role_policy_attachment" "ecs_tasks_execution_role" {
-  count      = "${local.fargate_enabled ? 1 : 0}"
+  count      = "${var.create * (var.fargate_enabled ? 1 : 0)}"
   role       = "${aws_iam_role.ecs_task_execution_role.id}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 # The actual ECS TASK ROLE
 resource "aws_iam_role" "ecs_tasks_role" {
-  name               = "${local.cluster_name}-${var.name}-task-role"
+  count              = "${var.create}"
+  name               = "${var.name}-task-role"
   assume_role_policy = "${data.aws_iam_policy_document.ecs_task_asume_role.json}"
 }
 
 # Policy Document to allow KMS Decryption with given KEYS
 data "aws_iam_policy_document" "kms_permissions" {
+  count = "${var.create}"
+
   statement {
     effect    = "Allow"
     actions   = ["kms:Decrypt"]
@@ -42,6 +87,7 @@ data "aws_iam_policy_document" "kms_permissions" {
 
 # Allow KMS-Decrypt permissions for the ECS Task Role
 resource "aws_iam_role_policy" "kms_permissions" {
+  count  = "${var.create}"
   name   = "kms_permissions"
   role   = "${aws_iam_role.ecs_tasks_role.id}"
   policy = "${data.aws_iam_policy_document.kms_permissions.json}"
@@ -49,15 +95,18 @@ resource "aws_iam_role_policy" "kms_permissions" {
 
 # Policy Document to allow KMS Decryption with given KEYS
 data "aws_iam_policy_document" "ssm_permissions" {
+  count = "${var.create}"
+
   statement {
     effect    = "Allow"
     actions   = ["kms:GetParameter", "ssm:GetParametersByPath"]
-    resources = ["${join("\", \"", formatlist("arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/application/%s/*",var.ssm_paths))}"]
+    resources = ["${join("\", \"", formatlist("arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/application/%s/*",var.ssm_paths))}"]
   }
 }
 
 # Add the ssm policy to the task role
 resource "aws_iam_role_policy" "ssm_permissions" {
+  count  = "${var.create}"
   name   = "ssm-policy"
   role   = "${aws_iam_role.ecs_tasks_role.id}"
   policy = "${data.aws_iam_policy_document.ssm_permissions.json}"
@@ -65,6 +114,8 @@ resource "aws_iam_role_policy" "ssm_permissions" {
 
 # Policy Document to allow S3 Read-Write Access to given paths
 data "aws_iam_policy_document" "s3_rw_permissions" {
+  count = "${var.create}"
+
   statement {
     effect    = "Allow"
     actions   = ["s3:ListBucket"]
@@ -80,6 +131,8 @@ data "aws_iam_policy_document" "s3_rw_permissions" {
 
 # Policy Document to allow S3 Read-Only Access to given paths
 data "aws_iam_policy_document" "s3_ro_permissions" {
+  count = "${var.create}"
+
   statement {
     effect    = "Allow"
     actions   = ["s3:ListBucket"]
@@ -96,15 +149,23 @@ data "aws_iam_policy_document" "s3_ro_permissions" {
 # Add the ssm policy to the task role
 resource "aws_iam_role_policy" "s3_rw_permissions" {
   name   = "s3-read-write-policy"
-  count  = "${length(var.s3_rw_paths) > 0 ? 1 : 0 }"
+  count  = "${var.create * (length(var.s3_rw_paths) > 0 ? 1 : 0 )}"
   role   = "${aws_iam_role.ecs_tasks_role.id}"
   policy = "${data.aws_iam_policy_document.s3_rw_permissions.json}"
 }
 
 # Add the ssm policy to the task role
 resource "aws_iam_role_policy" "s3_ro_permissions" {
-  count  = "${length(var.s3_ro_paths) > 0 ? 1 : 0 }"
+  count  = "${var.create * (length(var.s3_ro_paths) > 0 ? 1 : 0 )}"
   name   = "s3-readonly-policy"
   role   = "${aws_iam_role.ecs_tasks_role.id}"
   policy = "${data.aws_iam_policy_document.s3_ro_permissions.json}"
+}
+
+output "ecs_task_execution_role_arn" {
+  value = "${join("",aws_iam_role.ecs_task_execution_role.*.arn)}"
+}
+
+output "ecs_taskrole_arn" {
+  value = "${join("",aws_iam_role.ecs_tasks_role.*.arn)}"
 }

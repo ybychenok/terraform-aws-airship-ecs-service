@@ -1,25 +1,31 @@
+variable "cluster_name" {}
+variable "ecs_service_name" {}
+variable "create" {}
+variable "desired_min_capacity" {}
+variable "desired_max_capacity" {}
+variable "scaling_properties" {}
+
 locals {
-   cluster_plus_service_name = "${local.cluster_name}-${local.ecs_service_name}"
-   ecs_service_name = "${local.awsvpc_enabled ? join("",aws_ecs_service.app-with-lb-awsvpc.*.name) : join("",aws_ecs_service.app-with-lb.*.name) }"
+  cluster_plus_service_name = "${var.cluster_name}-${var.ecs_service_name}"
 }
 
 resource "aws_appautoscaling_target" "target" {
-  count              = "${local.scaling_enabled ? 1 : 0}"
+  count              = "${var.create}"
   service_namespace  = "ecs"
-  resource_id        = "service/${local.cluster_name}/${local.ecs_service_name}"
+  resource_id        = "service/${var.cluster_name}/${var.ecs_service_name}"
   scalable_dimension = "ecs:service:DesiredCount"
-  min_capacity       = "${local.desired_min_capacity}"
-  max_capacity       = "${local.desired_max_capacity}"
+  min_capacity       = "${var.desired_min_capacity}"
+  max_capacity       = "${var.desired_max_capacity}"
 }
 
 resource "aws_appautoscaling_policy" "policy" {
-  count = "${(local.scaling_enabled ? 1 : 0 ) * length(var.scaling_properties)}"
+  count = "${var.create * length(var.scaling_properties)}"
 
   name               = "${local.cluster_plus_service_name}-${lookup(var.scaling_properties[count.index], "type")}-${element(var.direction[lookup(var.scaling_properties[count.index], "direction")],1)}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 
-  resource_id        = "service/${local.cluster_name}/${local.ecs_service_name}"
+  resource_id = "service/${var.cluster_name}/${var.ecs_service_name}"
 
   step_scaling_policy_configuration {
     adjustment_type         = "${lookup(var.scaling_properties[count.index], "adjustment_type")}"
@@ -34,7 +40,7 @@ resource "aws_appautoscaling_policy" "policy" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_low" {
-  count = "${(local.scaling_enabled ? 1 : 0 ) * length(var.scaling_properties)}"
+  count      = "${var.create * length(var.scaling_properties)}"
   alarm_name = "${local.cluster_plus_service_name}-${lookup(var.scaling_properties[count.index], "type")}-${element(var.direction[lookup(var.scaling_properties[count.index], "direction")],1)}"
 
   comparison_operator = "${element(var.direction[lookup(var.scaling_properties[count.index], "direction")],0)}"
@@ -47,8 +53,8 @@ resource "aws_cloudwatch_metric_alarm" "service_low" {
   threshold          = "${lookup(var.scaling_properties[count.index], "threshold")}"
 
   dimensions {
-    ClusterName = "${local.cluster_name}"
-    ServiceName = "${local.ecs_service_name}"
+    ClusterName = "${var.cluster_name}"
+    ServiceName = "${var.ecs_service_name}"
   }
 
   alarm_actions = ["${aws_appautoscaling_policy.policy.*.arn[count.index]}"]

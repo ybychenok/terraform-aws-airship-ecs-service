@@ -5,29 +5,14 @@
     "memory": ${mem},
     "name": "${container_name}",
     ${hostname_block}
-    "portMappings": [
-      {
-        "containerPort": ${container_port},
-        "hostPort": ${host_port} 
-      }
-    ],
-    "environment": [
-${envvars}
-{
-  "name": "TASK_TYPE",
-  "value": "${task_type}"
-},
-{
-  "name": "SSM_AVAILABLE",
-  "value": "true"
-}
-    ],
+    ${portmappings_block}
+    "environment": ${envvars},
     "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
             "awslogs-group": "${log_group_name}",
             "awslogs-region": "${log_group_region}",
-            "awslogs-stream-prefix": "0"
+            "awslogs-stream-prefix": "${container_name}"
         }
     }
 }
