@@ -70,8 +70,8 @@ resource "aws_ecs_service" "app-with-lb" {
 
   desired_count = "${var.desired_capacity}"
 
-  deployment_maximum_percent         = "${local.deployment_maximum_percent}"
-  deployment_minimum_healthy_percent = "${local.deployment_minimum_healthy_percent}"
+  deployment_maximum_percent         = "${var.deployment_maximum_percent}"
+  deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
 
   load_balancer {
     target_group_arn = "${var.lb_target_group_arn}"

@@ -32,14 +32,14 @@ resource "aws_appautoscaling_target" "target" {
 }
 
 resource "aws_appautoscaling_policy" "policy" {
-  count = "${var.create * length(var.scaling_properties)}"
+  count = 0
+
+  #count = "${var.create}"
 
   name               = "${local.cluster_plus_service_name}-${lookup(var.scaling_properties[count.index], "type")}-${element(var.direction[lookup(var.scaling_properties[count.index], "direction")],1)}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
-
   resource_id = "service/${var.cluster_name}/${var.ecs_service_name}"
-
   step_scaling_policy_configuration {
     adjustment_type         = "${lookup(var.scaling_properties[count.index], "adjustment_type")}"
     cooldown                = "${lookup(var.scaling_properties[count.index], "cooldown")}"
@@ -53,7 +53,9 @@ resource "aws_appautoscaling_policy" "policy" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_low" {
-  count      = "${var.create * length(var.scaling_properties)}"
+  count = 0
+
+  #count      = "${var.create}"
   alarm_name = "${local.cluster_plus_service_name}-${lookup(var.scaling_properties[count.index], "type")}-${element(var.direction[lookup(var.scaling_properties[count.index], "direction")],1)}"
 
   comparison_operator = "${element(var.direction[lookup(var.scaling_properties[count.index], "direction")],0)}"

@@ -6,10 +6,6 @@ variable "route53_name" {
   default = ""
 }
 
-variable "awsvpc_enabled" {
-  default = false
-}
-
 variable "unhealthy_threshold" {}
 
 variable "cluster_name" {
@@ -40,10 +36,6 @@ variable "lb_vpc_id" {
   default = ""
 }
 
-variable "aws_vpc_enabled" {
-  default = false
-}
-
 variable "health_uri" {
   default = ""
 }
@@ -62,7 +54,7 @@ variable "create" {
 
 locals {
   # We only craete when var.create is true and a LB ARN is given
-  create = "${var.create * ( length(var.lb_arn) > 0 ? 1 : 0)}"
+  create = "${(var.create ? 1 : 0 ) * ( length(var.lb_arn) > 0 ? 1 : 0)}"
 }
 
 output "create" {
