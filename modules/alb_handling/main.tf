@@ -9,6 +9,7 @@ variable "route53_name" {
 variable "awsvpc_enabled" {
   default = false
 }
+
 variable "unhealthy_threshold" {
   default = ""
 }
@@ -18,6 +19,18 @@ variable "name" {
 }
 
 variable "lb_arn" {
+  default = ""
+}
+
+variable "lb_listener_arn" {
+  default = ""
+}
+
+variable "lb_listener_arn_https" {
+  default = ""
+}
+
+variable "target_type" {
   default = ""
 }
 
@@ -45,7 +58,7 @@ variable "create" {
   default = true
 }
 
-local {
+locals {
   # We only craete when var.create is true and a LB ARN is given
   create = "${var.create * ( length(var.lb_arn) > 0 ? 1 : 0)}"
 }
@@ -83,7 +96,7 @@ resource "aws_lb_target_group" "service" {
   port        = 80
   protocol    = "HTTP"
   vpc_id      = "${var.lb_vpc_id}"
-  target_type = "${var.awsvpc_enabled == 1 ? "ip" : "instance"}"
+  target_type = "${var.target_type}"
 
   health_check {
     path                = "${var.health_uri}"
@@ -125,4 +138,8 @@ resource "aws_lb_listener_rule" "host_based_routing-ssl" {
     field  = "host-header"
     values = ["${compact(list((var.create_route53_zone ? join("",aws_route53_record.record.*.fqdn) : ""),var.custom_listen_host))}"]
   }
+}
+
+output "lb_target_group_arn" {
+  value = "${join("",aws_lb_target_group.service.*.arn)}"
 }

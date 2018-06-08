@@ -2,7 +2,7 @@
 # of the map is being defined. This is mitigated by using an extra set of default_* variables 
 
 variable "create" {
-   default = true
+  default = true
 }
 
 ## ecs_properties map defines the vars for the ECS Cluster, it default to EC2 as service_launch_type
@@ -249,14 +249,4 @@ variable "s3_ro_paths" {
 # S3 Read-write paths the Task has access to
 variable "s3_rw_paths" {
   default = []
-}
-
-# Internal lookup map
-variable "direction" {
-  type = "map"
-
-  default = {
-    up   = ["GreaterThanOrEqualToThreshold", "scale_out"]
-    down = ["LessThanThreshold", "scale_in"]
-  }
 }

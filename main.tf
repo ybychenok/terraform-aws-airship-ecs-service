@@ -5,9 +5,9 @@ data "aws_ecs_cluster" "this" {
 }
 
 locals {
-  cluster_id = "${data.aws_ecs_cluster.this.arn}"
+  cluster_id   = "${data.aws_ecs_cluster.this.arn}"
   cluster_name = "${lookup(var.ecs_properties,"ecs_cluster_name")}"
-  region = "${data.aws_region.current.name}"
+  region       = "${data.aws_region.current.name}"
 
   fargate_enabled = "${lookup(var.ecs_properties,"service_launch_type", "EC2") == "FARGATE" ? true : false }"
   launch_type     = "${local.fargate_enabled ? "FARGATE" : "EC2" }"
@@ -38,28 +38,28 @@ module "alb_handling" {
   custom_listen_host    = "${lookup(var.load_balancing_properties,"custom_listen_host", "")}"
   health_uri            = "${lookup(var.load_balancing_properties,"health_uri", var.default_load_balancing_properties_health_uri)}"
   target_type           = "${local.awsvpc_enabled ? "ip" : "instance"}"
-  awsvpc_enabled       = "${local.awsvpc_enabled}"
+  awsvpc_enabled        = "${local.awsvpc_enabled}"
 }
 
 ###### CloudWatch Logs
 resource "aws_cloudwatch_log_group" "app" {
-  count = "${var.create}"
+  count             = "${var.create}"
   name              = "${local.cluster_name}/${var.name}"
   retention_in_days = 14
 }
 
 module "ecs_task_definition" {
-  source = "./modules/ecs_task_definition/"
-  name = "${local.cluster_name}-${var.name}"
-  container_properties = "${var.container_properties}"
-  awsvpc_enabled = "${local.awsvpc_enabled}"
-  fargate_enabled = "${local.fargate_enabled}"
-  cloudwatch_loggroup_name = "${aws_cloudwatch_log_group.app.name}"
-  container_envvars = "${var.container_envvars}"
-  ecs_taskrole_arn = "${module.iam.ecs_taskrole_arn}"
+  source                      = "./modules/ecs_task_definition/"
+  name                        = "${local.cluster_name}-${var.name}"
+  container_properties        = "${var.container_properties}"
+  awsvpc_enabled              = "${local.awsvpc_enabled}"
+  fargate_enabled             = "${local.fargate_enabled}"
+  cloudwatch_loggroup_name    = "${aws_cloudwatch_log_group.app.name}"
+  container_envvars           = "${var.container_envvars}"
+  ecs_taskrole_arn            = "${module.iam.ecs_taskrole_arn}"
   ecs_task_execution_role_arn = "${module.iam.ecs_task_execution_role_arn}"
-  launch_type = "${local.launch_type}"
-  region = "${local.region}"
+  launch_type                 = "${local.launch_type}"
+  region                      = "${local.region}"
 }
 
 module "ecs_service" {
@@ -67,8 +67,7 @@ module "ecs_service" {
   name                    = "${local.cluster_name}-${var.name}"
   create                  = "${var.create}"
   cluster_id              = "${local.cluster_id}"
-  cluster_name            = "${local.cluster_name}"
-  ecs_task_definition_arn = "${module.ecs_task_definition.arn}"
+  ecs_task_definition_arn = "${module.ecs_task_definition.aws_ecs_task_definition_arn}"
   launch_type             = "${local.launch_type}"
 
   deployment_maximum_percent         = "${lookup(var.capacity_properties,"deployment_maximum_percent", var.default_capacity_properties_deployment_maximum_percent)}"
@@ -87,7 +86,6 @@ module "ecs_service" {
 
 module "ecs_autoscaling" {
   source = "./modules/ecs_autoscaling/"
-  name   = "${local.cluster_name}-${var.name}"
   create = "${var.create} * length(var.scaling_properties) > 0 ? 1 : 0 }"
 
   cluster_name         = "${local.cluster_name}"

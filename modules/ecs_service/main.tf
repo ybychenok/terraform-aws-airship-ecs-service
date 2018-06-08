@@ -14,8 +14,13 @@ variable "container_port" {}
 variable "deployment_maximum_percent" {}
 variable "deployment_minimum_healthy_percent" {}
 
-variable "awsvpc_subnets" { default = [] }
-variable "awsvpc_security_group_ids" { default =[]}
+variable "awsvpc_subnets" {
+  default = []
+}
+
+variable "awsvpc_security_group_ids" {
+  default = []
+}
 
 variable "lb_create" {}
 
@@ -41,7 +46,7 @@ resource "aws_ecs_service" "app-with-lb-awsvpc" {
   deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
 
   load_balancer {
-    target_group_arn = "${var.target_group_arn}"
+    target_group_arn = "${var.lb_target_group_arn}"
     container_name   = "${var.container_name}"
     container_port   = "${var.container_port}"
   }
@@ -57,7 +62,7 @@ resource "aws_ecs_service" "app-with-lb-awsvpc" {
 }
 
 resource "aws_ecs_service" "app-with-lb" {
-  count           = "${var.create * ( (var.awsvpc_enabled == 0 ? 1 : 0 ) * (var.lb_create == 1 ? 1 : 0))}"
+  count           = "${var.create * ( (local.awsvpc_enabled == 0 ? 1 : 0 ) * (var.lb_create == 1 ? 1 : 0))}"
   name            = "${var.name}"
   launch_type     = "${var.launch_type}"
   cluster         = "${var.cluster_id}"
@@ -69,7 +74,7 @@ resource "aws_ecs_service" "app-with-lb" {
   deployment_minimum_healthy_percent = "${local.deployment_minimum_healthy_percent}"
 
   load_balancer {
-    target_group_arn = "${var.target_group_arn}"
+    target_group_arn = "${var.lb_target_group_arn}"
     container_name   = "${var.container_name}"
     container_port   = "${var.container_port}"
   }
@@ -94,6 +99,5 @@ resource "aws_ecs_service" "app" {
 }
 
 output "ecs_service_name" {
-   value = "${var.create ? local.awsvpc_enabled ? join("",aws_ecs_service.app-with-lb-awsvpc.*.name) : join("",aws_ecs_service.app-with-lb.*.name): "" }"
+  value = "${var.create ? local.awsvpc_enabled ? join("",aws_ecs_service.app-with-lb-awsvpc.*.name) : join("",aws_ecs_service.app-with-lb.*.name): "" }"
 }
-

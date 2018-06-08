@@ -1,3 +1,13 @@
+# Internal lookup map
+variable "direction" {
+  type = "map"
+
+  default = {
+    up   = ["GreaterThanOrEqualToThreshold", "scale_out"]
+    down = ["LessThanThreshold", "scale_in"]
+  }
+}
+
 variable "cluster_name" {}
 variable "ecs_service_name" {}
 variable "create" {}

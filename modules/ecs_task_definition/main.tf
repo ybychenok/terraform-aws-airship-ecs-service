@@ -66,7 +66,7 @@ resource "aws_ecs_task_definition" "app" {
   execution_role_arn = "${var.ecs_task_execution_role_arn}"
 
   cpu    = "${var.fargate_enabled  ? lookup(var.container_properties[0], "cpu"): "" }"
-  memory    = "${var.fargate_enabled  ? lookup(var.container_properties[0], "mem"): "" }"
+  memory = "${var.fargate_enabled  ? lookup(var.container_properties[0], "mem"): "" }"
 
   container_definitions = "[${join(",",data.template_file.task_definition.*.rendered)}]"
   network_mode          = "${var.awsvpc_enabled == 1 ? "awsvpc" : "bridge"}"
@@ -87,5 +87,5 @@ output "container0_port" {
 }
 
 output "aws_ecs_task_definition_arn" {
-   value = "${aws_ecs_task_definition.app.arn}"
+  value = "${aws_ecs_task_definition.app.arn}"
 }
