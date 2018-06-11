@@ -7,10 +7,10 @@ This module is Work in Progress! Do not source from github.
 
 ```hcl
 
-module "demo-web" {
+module "demo_web" {
   source = "github.com/blinkist/airship-tf-ecs-service/"
 
-  name   = "demo5-web"
+  name   = "demo-web"
 
 
   # ECS Service properties
@@ -25,14 +25,31 @@ module "demo-web" {
 
   # load_balancing_properties take care of binding the service to an ( Application Load Balancer) ALB
   load_balancing_properties {
+    # The ARN of the ALB
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"
+    # https listener ARN
     lb_listener_arn_https = "${element(module.alb_shared_services_ext.https_listener_arns,0)}"
+
+    # http listener ARN
     lb_listener_arn       = "${element(module.alb_shared_services_ext.http_tcp_listener_arns,0)}"
+
+    # The VPC_ID the target_group is being created in
     lb_vpc_id             = "${module.vpc.vpc_id}"
+
+    # The route53 zone for which we create a subdomain
     route53_zone_id       = "${aws_route53_zone.shared_ext_services_domain.zone_id}"
+
+    # Do we actually want to create the subdomain
     create_route53_record = true
+
+    # After which threshold in health check is the task marked as unhealthy
     unhealthy_threshold   = "3"
+
+    # custom_listen_host defines an extra listener rule for this specific host-header, defaults to empty
     custom_listen_host    = "www.example.com"
+
+    # health_uri defines which health-check uri the target group needs to check on for health_check
+    health_uri = "/ping"
   }
 
   container_properties = [

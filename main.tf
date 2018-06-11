@@ -97,7 +97,7 @@ module "alb_handling" {
 
 ###### CloudWatch Logs
 resource "aws_cloudwatch_log_group" "app" {
-  count             = "${var.create}"
+  count             = "${var.create ? 1 : 0}"
   name              = "${local.cluster_name}/${var.name}"
   retention_in_days = 14
 }
@@ -107,6 +107,8 @@ resource "aws_cloudwatch_log_group" "app" {
 # 
 module "ecs_task_definition" {
   source = "./modules/ecs_task_definition/"
+
+  create = "${var.create}"
 
   # The name of the task_definition ( generally, a combination of the cluster name and the service name.)
   name         = "${local.cluster_name}-${var.name}"
