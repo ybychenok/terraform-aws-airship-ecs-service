@@ -60,7 +60,7 @@ resource "aws_lb_listener_rule" "host_based_routing" {
 
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
-resource "aws_lb_listener_rule" "host_based_routing-ssl" {
+resource "aws_lb_listener_rule" "host_based_routing_ssl" {
   count = "${local.create && var.https_enabled && var.create_route53_record? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
@@ -110,4 +110,9 @@ resource "aws_lb_listener_rule" "host_based_routing_ssl_custom_listen_host" {
     field  = "host-header"
     values = ["${var.custom_listen_host}"]
   }
+}
+
+# This is an output the ecs_service depends on. This to make sure the target_group is attached to an alb before adding to a service. The actual content is useless
+output "listener_added" {
+  value = "${join("",aws_lb_listener_rule.host_based_routing.*.arn)}${join("",aws_lb_listener_rule.host_based_routing_custom_listen_host.*.arn)}"
 }

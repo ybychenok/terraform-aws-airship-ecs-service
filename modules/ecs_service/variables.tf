@@ -1,3 +1,10 @@
+# Faking depends_on, thanks https://medium.com/@bonya/terraform-adding-depends-on-to-your-custom-modules-453754a8043e
+variable depends_on {
+  default = []
+
+  type = "list"
+}
+
 # Name of the ECS Service
 variable "name" {}
 
@@ -43,4 +50,9 @@ variable "awsvpc_security_group_ids" {
 # lb_target_group_arn sets the arn of the target_group the service needs to connect to
 variable "lb_target_group_arn" {
   default = ""
+}
+
+# Do we have a load balancer attached
+variable "lb_attached" {
+  default = true
 }

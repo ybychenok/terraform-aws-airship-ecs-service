@@ -164,6 +164,8 @@ module "ecs_service" {
   # deployment_minimum_healthy_percent sets the minimum % in capacity at depployment
   deployment_minimum_healthy_percent = "${lookup(var.capacity_properties,"deployment_minimum_healthy_percent", var.default_capacity_properties_deployment_minimum_healthy_percent)}"
 
+  lb_attached = "${length(lookup(var.load_balancing_properties,"lb_arn", "")) > 0 ? true : false}"
+
   # awsvpc_subnets defines the subnets for an awsvpc ecs module
   awsvpc_subnets = "${var.awsvpc_subnets}"
 
@@ -181,30 +183,30 @@ module "ecs_service" {
   container_name = "${module.ecs_task_definition.container0_name}"
 
   container_port = "${module.ecs_task_definition.container0_port}"
+
+  depends_on = ["module.alb_handling.listener_added"]
 }
 
 #
-##
-## This modules sets the scaling properties of the ECS Service
-##
-#module "ecs_autoscaling" {
-#  source = "./modules/ecs_autoscaling/"
+# This modules sets the scaling properties of the ECS Service
 #
-#  # create defines if resources inside this module are being created.
-#  create = "${(var.create ? 1 : 0 ) * (length(var.scaling_properties) > 0 ? 1 : 0 )}"
-#
-#  cluster_name = "${local.cluster_name}"
-#
-#  # ecs_service_name is derived from the actual ecs_service, this to force dependency at creation.
-#  ecs_service_name = "${module.ecs_service.ecs_service_name}"
-#
-#  # desired_min_capacity, in case of autoscaling, desired_min_capacity sets the minimum size in tasks
-#  desired_min_capacity = "${lookup(var.capacity_properties,"desired_min_capacity", var.default_capacity_properties_desired_min_capacity)}"
-#
-#  # desired_max_capaity, in case of autoscaling, desired_max_capacity sets the maximum size in tasks
-#  desired_max_capacity = "${lookup(var.capacity_properties,"desired_max_capacity", var.default_capacity_properties_desired_max_capacity)}"
-#
-#  # scaling_properties holds a list of maps with the scaling properties defined.
-#  scaling_properties = "${var.scaling_properties}"
-#}
+module "ecs_autoscaling" {
+  source = "./modules/ecs_autoscaling/"
 
+  # create defines if resources inside this module are being created.
+  create = "${var.create && length(var.scaling_properties) > 0 ? true : false }"
+
+  cluster_name = "${local.cluster_name}"
+
+  # ecs_service_name is derived from the actual ecs_service, this to force dependency at creation.
+  ecs_service_name = "${module.ecs_service.ecs_service_name}"
+
+  # desired_min_capacity, in case of autoscaling, desired_min_capacity sets the minimum size in tasks
+  desired_min_capacity = "${lookup(var.capacity_properties,"desired_min_capacity", var.default_capacity_properties_desired_min_capacity)}"
+
+  # desired_max_capaity, in case of autoscaling, desired_max_capacity sets the maximum size in tasks
+  desired_max_capacity = "${lookup(var.capacity_properties,"desired_max_capacity", var.default_capacity_properties_desired_max_capacity)}"
+
+  # scaling_properties holds a list of maps with the scaling properties defined.
+  scaling_properties = "${var.scaling_properties}"
+}
