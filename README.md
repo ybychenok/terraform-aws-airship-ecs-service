@@ -67,17 +67,17 @@ module "demo_web" {
     # The route53 zone for which we create a subdomain
     route53_zone_id       = "${aws_route53_zone.shared_ext_services_domain.zone_id}"
 
-    # Do we actually want to create the subdomain
-    create_route53_record = true
+    # Do we actually want to create the subdomain, default to true
+    # create_route53_record = true
 
-    # After which threshold in health check is the task marked as unhealthy
-    unhealthy_threshold   = "3"
+    # After which threshold in health check is the task marked as unhealthy, defaults to 3
+    # unhealthy_threshold   = "3"
 
     # custom_listen_host defines an extra listener rule for this specific host-header, defaults to empty
-    custom_listen_host    = "www.example.com"
+    # custom_listen_host    = "www.example.com"
 
-    # health_uri defines which health-check uri the target group needs to check on for health_check
-    health_uri = "/ping"
+    # health_uri defines which health-check uri the target group needs to check on for health_check, defaults to /ping
+    # health_uri = "/ping"
   }
 
   container_properties = [
@@ -94,17 +94,17 @@ module "demo_web" {
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {
        KEVIN = "bacon"
-       K8S = "overrated"
+       ECS = "OK"
        TASK_TYPE = "web" 
   } 
 
   # capacity_properties defines the size in task for the ECS Service.
-  # Without scaling enabled, desired_capacity is the only necessary property
+  # Without scaling enabled, desired_capacity is the only necessary property, defaults to 2
   # With scaling enabled, desired_min_capacity and desired_max_capacity define the lower and upper boundary in task size
   capacity_properties {
-    desired_capacity     = "2"
-    desired_min_capacity = "2"
-    desired_max_capacity = "5"
+    #desired_capacity     = "2"
+    #desired_min_capacity = "2"
+    #desired_max_capacity = "2"
   }
 
   # https://docs.aws.amazon.com/autoscaling/application/userguide/what-is-application-auto-scaling.html
@@ -137,6 +137,10 @@ module "demo_web" {
   kms_keys  = ["${module.global-kms.aws_kms_key_arn}", "${module.demo-kms.aws_kms_key_arn}"]
 
   # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
+  #
+  # https://medium.com/@tdi/ssm-parameter-store-for-keeping-secrets-in-a-structured-way-53a25d48166a
+  # "arn:aws:ssm:region:123456:parameter/application/%s/*"
+  #TODO
   ssm_paths = ["${module.global-kms.name}", "${module.demo-kms.name}"]
 
   # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-only fashion. 
@@ -200,10 +204,6 @@ module "demo-web" {
   kms_keys  = ["${module.global-kms.aws_kms_key_arn}", "${module.demo-kms.aws_kms_key_arn}"]
 
   # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
-  #
-  # https://medium.com/@tdi/ssm-parameter-store-for-keeping-secrets-in-a-structured-way-53a25d48166a
-  # "arn:aws:ssm:region:123456:parameter/application/%s/*"
-  #TODO
   ssm_paths = ["${module.global-kms.name}", "${module.demo-kms.name}"]
 
   # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-only fashion. 
