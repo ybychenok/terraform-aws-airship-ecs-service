@@ -90,7 +90,6 @@ variable "default_load_balancing_properties_create_route53_record" {
   default = true
 }
 
-
 ## capacity_properties map defines the capacity properties of the service
 variable "capacity_properties" {
   type = "map"

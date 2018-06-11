@@ -124,7 +124,7 @@ module "ecs_task_definition" {
   fargate_enabled = "${local.fargate_enabled}"
 
   # cloudwatch_loggroup_name sets the loggroup name of the cloudwatch loggroup made for this service.
-  cloudwatch_loggroup_name = "${aws_cloudwatch_log_group.app.name}"
+  cloudwatch_loggroup_name = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
 
   # container_envvars defines a map with key-val pairs of environment variables needed for the ecs task definition.
   container_envvars = "${var.container_envvars}"
