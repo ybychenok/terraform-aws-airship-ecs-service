@@ -60,7 +60,7 @@ resource "aws_lb_listener_rule" "host_based_routing" {
   # Let's sleep 10 seconds to see if we can mitigate this problem
   # The target group with targetGroupArn ARN does not have an associated load balancer.
   provisioner "local-exec" {
-    command = "sleep 10"
+    command = "sleep 30"
   }
 }
 
