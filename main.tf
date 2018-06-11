@@ -71,10 +71,19 @@ module "alb_handling" {
   lb_listener_arn_https = "${lookup(var.load_balancing_properties,"lb_listener_arn_https", "")}"
 
   # unhealthy_threshold defines the threashold for the target_group after which a service is seen as unhealthy.
-  unhealthy_threshold = "${lookup(var.load_balancing_properties,"lb_listener_arn_https", var.default_load_balancing_properties_unhealthy_threshold)}"
+  unhealthy_threshold = "${lookup(var.load_balancing_properties,"unhealthy_threshold", var.default_load_balancing_properties_unhealthy_threshold)}"
+
+  # create_route53_zone sets if this module creates a Route53 zone.
+  https_enabled = "${lookup(var.load_balancing_properties,"unhealthy_threshold", var.default_load_balancing_properties_https_enabled)}"
 
   # create_route53_zone sets if this module creates a Route53 zone.
   create_route53_record = true
+
+  # Sets the zone in which the sub-domain will be added for this service
+  route53_zone_id = "${lookup(var.load_balancing_properties,"route53_zone_id", "")}"
+
+  # Sets name for the sub-domain, we default to *name
+  route53_name = "${var.name}"
 
   # the custom_listen_host will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
   custom_listen_host = "${lookup(var.load_balancing_properties,"custom_listen_host", "")}"

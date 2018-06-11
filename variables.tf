@@ -49,6 +49,9 @@ variable "load_balancing_properties" {
 
     # unhealthy_threshold is the health uri to be checked by the ALB 
     unhealthy_threshold = "3"
+
+    # Do we create listener rules for https
+    https_enabled = true
   }
 }
 
@@ -74,6 +77,10 @@ variable "default_load_balancing_properties_health_uri" {
 
 variable "default_load_balancing_properties_unhealthy_threshold" {
   default = "3"
+}
+
+variable "default_load_balancing_properties_https_enabled" {
+  default = true
 }
 
 ## capacity_properties map defines the capacity properties of the service
