@@ -1,50 +1,67 @@
 README
+#
 
+This module is Work in Progress! Do not source from github.
 
-## Usage without ECS Scaling
+## Simple ECS Service on Fargate with ALB Attached
 
 ```hcl
 
 module "demo-web" {
   source = "github.com/blinkist/airship-tf-ecs-service/"
 
-  name   = "demo-web"
+  name   = "demo5-web"
 
+
+  # ECS Service properties
   ecs_properties {
     ecs_cluster_name    = "${local.cluster_name}"
     service_launch_type = "FARGATE"
-    memory              = "512"
-    cpu                 = "256"
   }
 
-  awsvpc_enabled            = true
+  # AWSVPC Block, with awsvpc_subnets defined the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
   awsvpc_security_group_ids = ["${module.demo_sg.this_security_group_id}"]
 
+  # load_balancing_properties take care of binding the service to an ( Application Load Balancer) ALB
   load_balancing_properties {
-    alb_attached          = true
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"
     lb_listener_arn_https = "${element(module.alb_shared_services_ext.https_listener_arns,0)}"
     lb_listener_arn       = "${element(module.alb_shared_services_ext.http_tcp_listener_arns,0)}"
-    lb_priority           = "100"
     lb_vpc_id             = "${module.vpc.vpc_id}"
     route53_zone_id       = "${aws_route53_zone.shared_ext_services_domain.zone_id}"
+    create_route53_record = true
+    unhealthy_threshold   = "3"
+    custom_listen_host    = "www.example.com"
   }
 
-  container_properties = [{
-    image_url  = "account.dkr.ecr.eu-central-1.amazonaws.com/demo:latest"
-    port       = "3000"
-    health_uri = "/ping"
-    mem        = "512"
-    cpu        = "256"
-  }]
+  container_properties = [
+    {
+      image_url  = "nginx:latest"
+      name       = "nginx"
+      port       = "80"
+      health_uri = "/ping"
+      mem        = "512"
+      cpu        = "256"
+    },
+  ]
 
+  # Initial ENV Variables for the ECS Task definition
+  container_envvars  {
+       SSM_ENABLED = "true"
+       TASK_TYPE = "web" 
+  } 
+
+  # capacity_properties defines the size in task for the ECS Service.
+  # Without scaling enabled, desired_capacity is the only necessary property
+  # With scaling enabled, desired_min_capacity and desired_max_capacity define the lower and upper boundary in task size
   capacity_properties {
     desired_capacity     = "2"
     desired_min_capacity = "2"
     desired_max_capacity = "5"
   }
 
+  # https://docs.aws.amazon.com/autoscaling/application/userguide/what-is-application-auto-scaling.html
   scaling_properties = [
     {
       type               = "CPUUtilization"
@@ -70,12 +87,93 @@ module "demo-web" {
     },
   ]
 
+  # The KMS Keys which can be used for kms:decrypt
   kms_keys  = ["${module.global-kms.aws_kms_key_arn}", "${module.demo-kms.aws_kms_key_arn}"]
+
+  # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
   ssm_paths = ["${module.global-kms.name}", "${module.demo-kms.name}"]
-}}
+
+  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-only fashion. 
+  s3_ro_paths = []
+
+  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-write fashion. 
+  s3_rw_paths = []
+
+}
 ```
+
+## Simple ECS Service on ECS with ALB Attached and no autoscaling
+
+```hcl
+
+module "demo-web" {
+  source = "github.com/blinkist/airship-tf-ecs-service/"
+
+  name   = "demo5-web"
+
+  # 
+  ecs_properties {
+    ecs_cluster_name    = "${local.cluster_name}"
+    service_launch_type = "EC2"
+  }
+
+  load_balancing_properties {
+    lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"
+    lb_listener_arn_https = "${element(module.alb_shared_services_ext.https_listener_arns,0)}"
+    lb_listener_arn       = "${element(module.alb_shared_services_ext.http_tcp_listener_arns,0)}"
+    lb_vpc_id             = "${module.vpc.vpc_id}"
+    route53_zone_id       = "${aws_route53_zone.shared_ext_services_domain.zone_id}"
+    unhealthy_threshold   = "3"
+  }
+
+  container_properties = [
+    {
+      image_url  = "nginx:latest"
+      name       = "nginx"
+      port       = "80"
+      health_uri = "/ping"
+      mem        = "512"
+      cpu        = "256"
+    },
+  ]
+
+  # Initial ENV Variables for the ECS Task definition
+  container_envvars  {
+       SSM_ENABLED = "true"
+       TASK_TYPE = "web" 
+  } 
+
+  # capacity_properties defines the size in task for the ECS Service.
+  # Without scaling enabled, desired_capacity is the only necessary property
+  # With scaling enabled, desired_min_capacity and desired_max_capacity define the lower and upper boundary in task size
+  capacity_properties {
+    desired_capacity     = "2"
+  }
+
+  # The KMS Keys which can be used for kms:decrypt
+  kms_keys  = ["${module.global-kms.aws_kms_key_arn}", "${module.demo-kms.aws_kms_key_arn}"]
+
+  # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
+  ssm_paths = ["${module.global-kms.name}", "${module.demo-kms.name}"]
+
+  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-only fashion. 
+  s3_ro_paths = []
+
+  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-write fashion. 
+  s3_rw_paths = []
+
+}
+
+
+```
+
 
 ## Outputs
 
-TODO
+ecs_taskrole_arn - The ARN of the IAM Role for this task, can be used to add attach other IAM Permissions
 
+
+# TODO
+
+- Service Discovery
+- SSL SNI Attaching

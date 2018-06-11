@@ -76,8 +76,8 @@ module "alb_handling" {
   # if https_enabled is true, listener rules are made for the ssl listener
   https_enabled = "${lookup(var.load_balancing_properties,"https_enabled", var.default_load_balancing_properties_https_enabled)}"
 
-  # create_route53_zone sets if this module creates a Route53 zone.
-  create_route53_record = true
+  # create_route53_record sets if this module creates a Route53 zone.
+  create_route53_record = "${lookup(var.load_balancing_properties,"create_route53_record", var.default_load_balancing_properties_create_route53_record)}"
 
   # Sets the zone in which the sub-domain will be added for this service
   route53_zone_id = "${lookup(var.load_balancing_properties,"route53_zone_id", "")}"

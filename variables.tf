@@ -52,6 +52,9 @@ variable "load_balancing_properties" {
 
     # Do we create listener rules for https
     https_enabled = true
+
+    # Do we want to create a subdomain for the service inside the Route53 zone
+    create_route53_record = true
   }
 }
 
@@ -82,6 +85,11 @@ variable "default_load_balancing_properties_unhealthy_threshold" {
 variable "default_load_balancing_properties_https_enabled" {
   default = true
 }
+
+variable "default_load_balancing_properties_create_route53_record" {
+  default = true
+}
+
 
 ## capacity_properties map defines the capacity properties of the service
 variable "capacity_properties" {
