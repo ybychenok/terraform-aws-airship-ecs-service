@@ -20,6 +20,7 @@ Maarten
 * [x] Integrated Service Scaling
 * [x] Handling of Creating listener rules to one ALB
 * [x] Exports role arn for adding permissions 
+* [ ] Terratest..
 * [ ] Service discovery
 * [ ] SSL SNI Adding for custom hostnames
 
