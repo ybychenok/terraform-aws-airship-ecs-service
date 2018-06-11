@@ -1,6 +1,8 @@
-# hack
-variable listener_info {
-  default = ""
+# Faking depends_on, thanks https://medium.com/@bonya/terraform-adding-depends-on-to-your-custom-modules-453754a8043e
+variable depends_on {
+  default = []
+
+  type = "list"
 }
 
 # Name of the ECS Service

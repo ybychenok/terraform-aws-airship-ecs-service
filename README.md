@@ -1,7 +1,24 @@
-README
-#
+# AWS ECS Service Terraform Module
 
-This module is Work in Progress! Do not source from github.
+- This module is Work in Progress! Do not source from github.
+
+## Features
+* [x] Can be conditionally created
+* [x] Creates all necessary IAM Roles for running an ECS Service
+* [x] Integrated IAM Permissions for KMS
+* [x] Integrated IAM Permissions for SSM
+* [x] Integrated IAM Permissions for S3
+* [x] Create an ECS service, with/without AWSVPC, with/without FARGATE
+* [x] Integrated Cloudwatch Logging
+* [x] Integrated Service Scaling
+* [x] Handling of Creating listener rules to one ALB
+* [x] Exports role arn for adding permissions 
+* [ ] Service discovery
+* [ ] SSL SNI Adding for custom hostnames
+
+## Will not feature
+* [ ] EFS, in theory possible, but stateful workloads should not be on ECS anyway
+
 
 ## Simple ECS Service on Fargate with ALB Attached
 
