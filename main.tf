@@ -25,8 +25,7 @@ module "iam" {
   name = "${local.cluster_name}-${var.name}"
 
   # Create defines if any resources need to be created inside the module
-  #create = "${var.create}"
-  create = true
+  create = "${var.create}"
 
   # Region is used multiple times inside this module, we pass this through so that we don't need multiple datasources
   region = "${local.region}"
@@ -75,7 +74,7 @@ module "alb_handling" {
   unhealthy_threshold = "${lookup(var.load_balancing_properties,"lb_listener_arn_https", var.default_load_balancing_properties_unhealthy_threshold)}"
 
   # create_route53_zone sets if this module creates a Route53 zone.
-  create_route53_zone = true
+  create_route53_record = true
 
   # the custom_listen_host will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
   custom_listen_host = "${lookup(var.load_balancing_properties,"custom_listen_host", "")}"
@@ -87,7 +86,7 @@ module "alb_handling" {
   target_type = "${local.awsvpc_enabled ? "ip" : "instance"}"
 }
 
-#
+
 ####### CloudWatch Logs
 #resource "aws_cloudwatch_log_group" "app" {
 #  count             = "${var.create}"
