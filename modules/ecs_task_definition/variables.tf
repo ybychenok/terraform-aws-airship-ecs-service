@@ -25,7 +25,9 @@ variable "fargate_enabled" {
 }
 
 # cloudwatch_loggroup_name sets the cloudwatch loggroup name
-variable "cloudwatch_loggroup_name" {}
+variable "cloudwatch_loggroup_name" {
+  default = ""
+}
 
 #  extra set of environment variables for the ecs task
 variable "container_envvars" {
