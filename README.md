@@ -27,6 +27,9 @@ Maarten
 ## Will not feature
 * [ ] mounting EFS mounts within ECS Task, in theory possible, but stateful workloads should not be on ECS anyway
 
+## known issues
+* [ ] At destroy, aws_appautoscaling_policy.policy.1: Failed to delete scaling policy: ObjectNotFoundException, 
+
 
 ## Simple ECS Service on Fargate with ALB Attached
 
