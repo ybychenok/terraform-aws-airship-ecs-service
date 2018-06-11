@@ -35,7 +35,7 @@ resource "null_resource" "envvars_as_list_of_maps" {
 
 data "template_file" "task_definition" {
   # We have as much task definitions per container as given maps inside the container properties variable
-  count = "${length(var.container_properties)}"
+  count = "${var.create && length(var.container_properties) > 0 }"
 
   template = "${file("${"${path.module}/task-definition.json"}")}"
 
