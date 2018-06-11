@@ -109,7 +109,7 @@ module "demo_web" {
     {
       type               = "CPUUtilization"
       direction          = "up"
-      evaluation_periods = 2
+      evaluation_periods = "2"
       observation_period = "300"
       statistic          = "Average"
       threshold          = "89"
@@ -120,7 +120,7 @@ module "demo_web" {
     {
       type               = "CPUUtilization"
       direction          = "down"
-      evaluation_periods = 4
+      evaluation_periods = "4"
       observation_period = "300"
       statistic          = "Average"
       threshold          = "10"
@@ -197,6 +197,10 @@ module "demo-web" {
   kms_keys  = ["${module.global-kms.aws_kms_key_arn}", "${module.demo-kms.aws_kms_key_arn}"]
 
   # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
+  #
+  # https://medium.com/@tdi/ssm-parameter-store-for-keeping-secrets-in-a-structured-way-53a25d48166a
+  # "arn:aws:ssm:region:123456:parameter/application/%s/*"
+  #TODO
   ssm_paths = ["${module.global-kms.name}", "${module.demo-kms.name}"]
 
   # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-only fashion. 

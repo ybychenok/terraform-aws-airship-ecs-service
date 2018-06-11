@@ -32,29 +32,33 @@ variable "load_balancing_properties" {
   type = "map"
 
   default = {
+    # 
+    # DEFAULT VALUES are derived from default_load_balancing_properties_*
+    #
+
     # lb_listener_arn is the ALB listener arn for HTTP
-    lb_listener_arn = ""
+    # lb_listener_arn = ""
 
     # lb_listener_arn_https is the ALB listener arn for HTTPS
-    lb_listener_arn_https = ""
+    # lb_listener_arn_https = ""
 
     # lb_vpc_id is the vpc_id for the target_group to reside in
-    lb_vpc_id = ""
+    # lb_vpc_id = ""
 
     # route53_zone_id is the zone to add a subdomain to
-    route53_zone_id = ""
+    # route53_zone_id = ""
 
     # health_uri is the health uri to be checked by the ALB 
-    health_uri = "/ping"
+    # health_uri = "/ping"
 
     # unhealthy_threshold is the health uri to be checked by the ALB 
-    unhealthy_threshold = "3"
+    # unhealthy_threshold = "3"
 
     # Do we create listener rules for https
-    https_enabled = true
+    # https_enabled = true
 
     # Do we want to create a subdomain for the service inside the Route53 zone
-    create_route53_record = true
+    # create_route53_record = true
   }
 }
 
@@ -95,23 +99,27 @@ variable "capacity_properties" {
   type = "map"
 
   default = {
+    # 
+    # DEFAULT VALUES are derived from default_capacity_properties_*
+    #
+
     # desired_capacity is the desired amount of tasks for a service, when autoscaling is used desired_capacity is only used initially
     # after that autoscaling determins the amount of tasks 
-    desired_capacity = "2"
+    # desired_capacity = "2"
 
     # desired_min_capacity is used when autoscaling is used, it sets the minimum of tasks to be available for this service
-    desired_min_capacity = "2"
+    # desired_min_capacity = "2"
 
     # desired_max_capacity is used when autoscaling is used, it sets the maximum of tasks to be available for this service
-    desired_max_capacity = "5"
+    # desired_max_capacity = "5"
 
     # deployment_maximum_percent sets the maximum deployment size of the current capacity, 200% means double the amount of current tasks
     # will be active in case a deployment is happening
-    deployment_maximum_percent = "200"
+    # deployment_maximum_percent = "200"
 
     # deployment_minimum_healthy_percent sets the minimum deployment size of the current capacity, 0% means no tasks need to be running at the moment of
     # a deployment switch
-    deployment_minimum_healthy_percent = "0"
+    # deployment_minimum_healthy_percent = "0"
   }
 }
 
@@ -190,7 +198,7 @@ variable "default_container_properties_cpu" {
 #     direction          = "up"
 #
 #     # evaluation_periods how many observation points are needed for a scaling decision
-#     evaluation_periods = 2
+#     evaluation_periods = "2"
 #
 #     
 #     # observation_period is the number of seconds one statistic is measured
@@ -217,7 +225,7 @@ variable "scaling_properties" {
 }
 
 # container_envvars defines extra container env vars, list of maps
-# [ { key = val},{key2= val2}]
+# { key = val,key2= val2}
 
 variable "container_envvars" {
   default = {}
