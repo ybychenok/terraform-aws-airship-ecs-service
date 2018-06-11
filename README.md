@@ -9,6 +9,7 @@
 * [x] Integrated IAM Permissions for SSM
 * [x] Integrated IAM Permissions for S3
 * [x] Create an ECS service, with/without AWSVPC, with/without FARGATE
+* [x] Creation of ECS Task definition for use with/without AWSVPC, with/without FARGATE 
 * [x] Integrated Cloudwatch Logging
 * [x] Integrated Service Scaling
 * [x] Handling of Creating listener rules to one ALB
@@ -82,7 +83,8 @@ module "demo_web" {
 
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {
-       SSM_ENABLED = "true"
+       KEVIN = "bacon"
+       K8S = "overrated"
        TASK_TYPE = "web" 
   } 
 
@@ -198,16 +200,10 @@ module "demo-web" {
 
 }
 
-
 ```
+
 
 
 ## Outputs
 
 ecs_taskrole_arn - The ARN of the IAM Role for this task, can be used to add attach other IAM Permissions
-
-
-# TODO
-
-- Service Discovery
-- SSL SNI Attaching

@@ -9,6 +9,16 @@ locals {
   lb_not_attached = "${var.lb_attached ? false :  true }"
 }
 
+# Make an LB connected service dependent of this rule
+# This to make sure the Target Group is linked to a Load Balancer before the aws_ecs_service is created
+resource "null_resource" "aws_lb_listener_rules" {
+  count = "${var.create && local.lb_attached ? 1 : 0}"
+
+  triggers {
+    listeners = "${join(",", var.aws_lb_listener_rules)}"
+  }
+}
+
 resource "aws_ecs_service" "app_with_lb_awsvpc" {
   count = "${var.create && local.awsvpc_enabled && local.lb_attached ? 1 : 0}"
 
@@ -36,6 +46,8 @@ resource "aws_ecs_service" "app_with_lb_awsvpc" {
     subnets         = ["${var.awsvpc_subnets}"]
     security_groups = ["${var.awsvpc_security_group_ids}"]
   }
+
+  depends_on = ["null_resource.aws_lb_listener_rules"]
 }
 
 resource "aws_ecs_service" "app_with_lb" {
@@ -59,6 +71,8 @@ resource "aws_ecs_service" "app_with_lb" {
   lifecycle {
     ignore_changes = ["desired_count", "task_definition", "revision"]
   }
+
+  depends_on = ["null_resource.aws_lb_listener_rules"]
 }
 
 resource "aws_ecs_service" "app" {

@@ -1,8 +1,6 @@
-# Faking depends_on, thanks https://medium.com/@bonya/terraform-adding-depends-on-to-your-custom-modules-453754a8043e
-variable depends_on {
+# hack 
+variable "aws_lb_listener_rules" {
   default = []
-
-  type = "list"
 }
 
 # Name of the ECS Service
