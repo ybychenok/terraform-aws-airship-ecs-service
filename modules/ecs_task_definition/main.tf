@@ -23,6 +23,16 @@ locals {
   container0_port = "${lookup(var.container_properties[0], "port")}"
 }
 
+# we use the null_resource triggers to create a list of key value maps
+resource "null_resource" "envvars_as_list_of_maps" {
+  count = "${length(keys(var.container_envvars))}"
+
+  triggers = "${map(
+    "name", "${element(keys(var.container_envvars), count.index)}",
+    "value", "${element(values(var.container_envvars), count.index)}",
+  )}"
+}
+
 data "template_file" "task_definition" {
   # We have as much task definitions per container as given maps inside the container properties variable
   count = "${length(var.container_properties)}"
@@ -34,7 +44,7 @@ data "template_file" "task_definition" {
     region    = "${var.region}"
     cpu       = "${lookup(var.container_properties[count.index], "cpu")}"
     mem       = "${lookup(var.container_properties[count.index], "mem")}"
-    envvars   = "${jsonencode(var.container_envvars)}"
+    envvars   = "${jsonencode(null_resource.envvars_as_list_of_maps.*.triggers)}"
 
     # We only create a  portmapping  for the first container
     portmappings_block = "${count.index == 0 ? data.template_file.portmapping.rendered : ""}"
@@ -64,7 +74,7 @@ resource "aws_ecs_task_definition" "app" {
   memory = "${var.fargate_enabled  ? lookup(var.container_properties[0], "mem"): "" }"
 
   container_definitions = "[${join(",",data.template_file.task_definition.*.rendered)}]"
-  network_mode          = "${var.awsvpc_enabled == 1 ? "awsvpc" : "bridge"}"
+  network_mode          = "${var.awsvpc_enabled ? "awsvpc" : "bridge"}"
 
   # We need to ignore future container_definitions, and placement_constraints, as other tools take care of updating the task definition
   lifecycle {

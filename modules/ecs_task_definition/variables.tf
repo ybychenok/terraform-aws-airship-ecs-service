@@ -29,7 +29,7 @@ variable "cloudwatch_loggroup_name" {}
 
 #  extra set of environment variables for the ecs task
 variable "container_envvars" {
-  default = []
+  default = {}
 }
 
 # ecs_taskrole_arn sets the arn of the ECS Task role

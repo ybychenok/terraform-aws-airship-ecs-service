@@ -213,8 +213,7 @@ variable "scaling_properties" {
 # [ { key = val},{key2= val2}]
 
 variable "container_envvars" {
-  type    = "list"
-  default = []
+  default = {}
 }
 
 ####

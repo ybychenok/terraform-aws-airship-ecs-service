@@ -124,7 +124,7 @@ module "ecs_task_definition" {
   # cloudwatch_loggroup_name sets the loggroup name of the cloudwatch loggroup made for this service.
   cloudwatch_loggroup_name = "${aws_cloudwatch_log_group.app.name}"
 
-  # container_envvars defines a list of maps filled with key-val pairs of environment variables needed for the ecs task definition.
+  # container_envvars defines a map with key-val pairs of environment variables needed for the ecs task definition.
   container_envvars = "${var.container_envvars}"
 
   # ecs_taskrole_arn sets the IAM role of the task.
@@ -140,51 +140,49 @@ module "ecs_task_definition" {
   region = "${local.region}"
 }
 
-##
-## This sub-module creates the ECS Service
-## 
-#module "ecs_service" {
-#  source = "./modules/ecs_service/"
-#  name   = "${local.cluster_name}-${var.name}"
 #
-#  # create defines if resources are being created inside this module
-#  create = "${var.create}"
-#
-#  cluster_id = "${local.cluster_id}"
-#
-#  # ecs_task_definition_arn is the arn of the task definition, created by the ecs_task_definition module 
-#  ecs_task_definition_arn = "${module.ecs_task_definition.aws_ecs_task_definition_arn}"
-#
-#  # launch_type either EC2 or FARGATE
-#  launch_type = "${local.launch_type}"
-#
-#  # deployment_maximum_percent sets the maximum size of the deployment in % of the normal size.
-#  deployment_maximum_percent = "${lookup(var.capacity_properties,"deployment_maximum_percent", var.default_capacity_properties_deployment_maximum_percent)}"
-#
-#  # deployment_minimum_healthy_percent sets the minimum % in capacity at depployment
-#  deployment_minimum_healthy_percent = "${lookup(var.capacity_properties,"deployment_minimum_healthy_percent", var.default_capacity_properties_deployment_minimum_healthy_percent)}"
-#
-#  # awsvpc_subnets defines the subnets for an awsvpc ecs module
-#  awsvpc_subnets = "${var.awsvpc_subnets}"
-#
-#  # awsvpc_security_group_ids defines the vpc_security_group_ids for an awsvpc module
-#  awsvpc_security_group_ids = "${var.awsvpc_security_group_ids}"
-#
-#  # lb_create sets if the ECS Service will be LB connected
-#  alb_connected = "${module.alb_handling.target_group_created}"
-#
-#  # lb_target_group_arn sets the arn of the target_group the service needs to connect to
-#  lb_target_group_arn = "${module.alb_handling.lb_target_group_arn}"
-#
-#  # desired_capacity sets the initial capacity in task of the ECS Service
-#  desired_capacity = "${lookup(var.capacity_properties,"desired_capacity", var.default_capacity_properties_desired_capacity)}"
-#
-#  # container_name sets the name of the container, this is used for the load balancer section inside the ecs_service to connect to a container_name defined inside the 
-#  # task definition, container_port sets the port for the same container.
-#  container_name = "${module.ecs_task_definition.container0_name}"
-#
-#  container_port = "${module.ecs_task_definition.container0_port}"
-#}
+# This sub-module creates the ECS Service
+# 
+module "ecs_service" {
+  source = "./modules/ecs_service/"
+  name   = "${local.cluster_name}-${var.name}"
+
+  # create defines if resources are being created inside this module
+  create = "${var.create}"
+
+  cluster_id = "${local.cluster_id}"
+
+  # ecs_task_definition_arn is the arn of the task definition, created by the ecs_task_definition module 
+  ecs_task_definition_arn = "${module.ecs_task_definition.aws_ecs_task_definition_arn}"
+
+  # launch_type either EC2 or FARGATE
+  launch_type = "${local.launch_type}"
+
+  # deployment_maximum_percent sets the maximum size of the deployment in % of the normal size.
+  deployment_maximum_percent = "${lookup(var.capacity_properties,"deployment_maximum_percent", var.default_capacity_properties_deployment_maximum_percent)}"
+
+  # deployment_minimum_healthy_percent sets the minimum % in capacity at depployment
+  deployment_minimum_healthy_percent = "${lookup(var.capacity_properties,"deployment_minimum_healthy_percent", var.default_capacity_properties_deployment_minimum_healthy_percent)}"
+
+  # awsvpc_subnets defines the subnets for an awsvpc ecs module
+  awsvpc_subnets = "${var.awsvpc_subnets}"
+
+  # awsvpc_security_group_ids defines the vpc_security_group_ids for an awsvpc module
+  awsvpc_security_group_ids = "${var.awsvpc_security_group_ids}"
+
+  # lb_target_group_arn sets the arn of the target_group the service needs to connect to
+  lb_target_group_arn = "${module.alb_handling.lb_target_group_arn}"
+
+  # desired_capacity sets the initial capacity in task of the ECS Service
+  desired_capacity = "${lookup(var.capacity_properties,"desired_capacity", var.default_capacity_properties_desired_capacity)}"
+
+  # container_name sets the name of the container, this is used for the load balancer section inside the ecs_service to connect to a container_name defined inside the 
+  # task definition, container_port sets the port for the same container.
+  container_name = "${module.ecs_task_definition.container0_name}"
+
+  container_port = "${module.ecs_task_definition.container0_port}"
+}
+
 #
 ##
 ## This modules sets the scaling properties of the ECS Service

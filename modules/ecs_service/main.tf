@@ -1,39 +1,16 @@
-variable "name" {}
-
-variable "create" {
-  default = true
-}
-
-variable "cluster_id" {}
-variable "ecs_task_definition_arn" {}
-variable "launch_type" {}
-
-variable "desired_capacity" {}
-variable "container_name" {}
-variable "container_port" {}
-variable "deployment_maximum_percent" {}
-variable "deployment_minimum_healthy_percent" {}
-
-variable "awsvpc_subnets" {
-  default = []
-}
-
-variable "awsvpc_security_group_ids" {
-  default = []
-}
-
-variable "lb_create" {}
-
-variable "lb_target_group_arn" {
-  default = ""
-}
-
 locals {
-  awsvpc_enabled = "${length(var.awsvpc_subnets) > 0 ? 1 : 0 }"
+  awsvpc_enabled = "${length(var.awsvpc_subnets) > 0 ? true : false }"
+
+  # not sure how to do a negation of a boolean
+  awsvpc_disabled = "${length(var.awsvpc_subnets) > 0 ? false : true }"
+
+  #
+  lb_attached     = "${length(var.lb_target_group_arn) > 0 ? true :  false }"
+  lb_not_attached = "${length(var.lb_target_group_arn) > 0 ? false :  true }"
 }
 
-resource "aws_ecs_service" "app-with-lb-awsvpc" {
-  count = "${var.create * ( local.awsvpc_enabled * (var.lb_create == 1 ? 1 : 0))}"
+resource "aws_ecs_service" "app_with_lb_awsvpc" {
+  count = "${var.create && local.awsvpc_enabled && local.lb_attached ? 1 : 0}"
 
   name            = "${var.name}"
   cluster         = "${var.cluster_id}"
@@ -61,8 +38,8 @@ resource "aws_ecs_service" "app-with-lb-awsvpc" {
   }
 }
 
-resource "aws_ecs_service" "app-with-lb" {
-  count           = "${var.create * ( (local.awsvpc_enabled == 0 ? 1 : 0 ) * (var.lb_create == 1 ? 1 : 0))}"
+resource "aws_ecs_service" "app_with_lb" {
+  count           = "${var.create && local.awsvpc_disabled && local.lb_attached ? 1 : 0}"
   name            = "${var.name}"
   launch_type     = "${var.launch_type}"
   cluster         = "${var.cluster_id}"
@@ -85,7 +62,7 @@ resource "aws_ecs_service" "app-with-lb" {
 }
 
 resource "aws_ecs_service" "app" {
-  count = "${var.create * ( 1 - var.lb_create)}"
+  count = "${var.create && local.lb_not_attached && local.awsvpc_disabled? 1 : 0 }"
 
   name            = "${var.name}"
   launch_type     = "${var.launch_type}"
@@ -98,6 +75,27 @@ resource "aws_ecs_service" "app" {
   }
 }
 
+resource "aws_ecs_service" "app_awsvpc" {
+  count = "${var.create && local.lb_not_attached && local.awsvpc_enabled ? 1 : 0 }"
+
+  name            = "${var.name}"
+  launch_type     = "${var.launch_type}"
+  cluster         = "${var.cluster_id}"
+  task_definition = "${var.ecs_task_definition_arn}"
+  desired_count   = "${var.desired_capacity}"
+
+  lifecycle {
+    ignore_changes = ["desired_count", "task_definition"]
+  }
+}
+
+# We need to output the service name of the resource created
+# Autoscaling uses the service name, by using the service name of the resource output, we make sure that the
+# Order of creation is maintained
 output "ecs_service_name" {
-  value = "${var.create ? local.awsvpc_enabled ? join("",aws_ecs_service.app-with-lb-awsvpc.*.name) : join("",aws_ecs_service.app-with-lb.*.name): "" }"
+  value = "${local.awsvpc_enabled ? 
+                ( local.lb_attached ? join("",aws_ecs_service.app_with_lb_awsvpc.*.name) : join("",aws_ecs_service.app_awsvpc.*.name) ) 
+                :
+                ( local.lb_attached ? join("",aws_ecs_service.app_with_lb.*.name) : join("",aws_ecs_service.app.*.name) ) 
+  }"
 }
