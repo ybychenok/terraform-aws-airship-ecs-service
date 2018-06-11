@@ -43,7 +43,7 @@ resource "aws_lb_target_group" "service" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing" {
-  count       = "${local.create && var.create_route53_record ? 1 : 0 }"
+  count = "${local.create && var.create_route53_record ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn}"
 
@@ -61,7 +61,7 @@ resource "aws_lb_listener_rule" "host_based_routing" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing-ssl" {
-  count       = "${local.create && var.https_enabled && var.create_route53_record? 1 : 0 }"
+  count = "${local.create && var.https_enabled && var.create_route53_record? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
 
@@ -79,7 +79,7 @@ resource "aws_lb_listener_rule" "host_based_routing-ssl" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_custom_listen_host" {
-  count       = "${local.create && length(var.custom_listen_host) > 0 ? 1 : 0 }"
+  count = "${local.create && length(var.custom_listen_host) > 0 ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn}"
 
@@ -97,7 +97,7 @@ resource "aws_lb_listener_rule" "host_based_routing_custom_listen_host" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_ssl_custom_listen_host" {
-  count       = "${local.create && var.https_enabled&& length(var.custom_listen_host) > 0 ? 1 : 0 }"
+  count = "${local.create && var.https_enabled&& length(var.custom_listen_host) > 0 ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
 

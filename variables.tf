@@ -217,11 +217,6 @@ variable "container_envvars" {
   default = []
 }
 
-variable "task_type" {
-  description = "The type of the task, either WEB or WORKER"
-  default     = "web"
-}
-
 ####
 
 variable "name" {

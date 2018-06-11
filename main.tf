@@ -73,8 +73,8 @@ module "alb_handling" {
   # unhealthy_threshold defines the threashold for the target_group after which a service is seen as unhealthy.
   unhealthy_threshold = "${lookup(var.load_balancing_properties,"unhealthy_threshold", var.default_load_balancing_properties_unhealthy_threshold)}"
 
-  # create_route53_zone sets if this module creates a Route53 zone.
-  https_enabled = "${lookup(var.load_balancing_properties,"unhealthy_threshold", var.default_load_balancing_properties_https_enabled)}"
+  # if https_enabled is true, listener rules are made for the ssl listener
+  https_enabled = "${lookup(var.load_balancing_properties,"https_enabled", var.default_load_balancing_properties_https_enabled)}"
 
   # create_route53_zone sets if this module creates a Route53 zone.
   create_route53_record = true
@@ -95,52 +95,51 @@ module "alb_handling" {
   target_type = "${local.awsvpc_enabled ? "ip" : "instance"}"
 }
 
+###### CloudWatch Logs
+resource "aws_cloudwatch_log_group" "app" {
+  count             = "${var.create}"
+  name              = "${local.cluster_name}/${var.name}"
+  retention_in_days = 14
+}
 
-####### CloudWatch Logs
-#resource "aws_cloudwatch_log_group" "app" {
-#  count             = "${var.create}"
-#  name              = "${local.cluster_name}/${var.name}"
-#  retention_in_days = 14
-#}
 #
-##
-## This sub-module creates the ECS Task definition
-## 
-#module "ecs_task_definition" {
-#  source = "./modules/ecs_task_definition/"
-#
-#  # The name of the task_definition ( generally, a combination of the cluster name and the service name.)
-#  name         = "${local.cluster_name}-${var.name}"
-#  cluster_name = "${local.cluster_name}"
-#
-#  # container_properties defines a list of maps of container_properties
-#  container_properties = "${var.container_properties}"
-#
-#  # awsvpc_enabled sets if the ecs task definition is awsvpc 
-#  awsvpc_enabled = "${local.awsvpc_enabled}"
-#
-#  # fargate_enabled sets if the ecs task definition has launch_type FARGATE
-#  fargate_enabled = "${local.fargate_enabled}"
-#
-#  # cloudwatch_loggroup_name sets the loggroup name of the cloudwatch loggroup made for this service.
-#  cloudwatch_loggroup_name = "${aws_cloudwatch_log_group.app.name}"
-#
-#  # container_envvars defines a list of maps filled with key-val pairs of environment variables needed for the ecs task definition.
-#  container_envvars = "${var.container_envvars}"
-#
-#  # ecs_taskrole_arn sets the IAM role of the task.
-#  ecs_taskrole_arn = "${module.iam.ecs_taskrole_arn}"
-#
-#  # ecs_task_execution_role_arn sets the task-execution role needed for FARGATE. This role is also empty in case of EC2
-#  ecs_task_execution_role_arn = "${module.iam.ecs_task_execution_role_arn}"
-#
-#  # Launch type, either EC2 or FARGATE
-#  launch_type = "${local.launch_type}"
-#
-#  # region, needed for Logging.. 
-#  region = "${local.region}"
-#}
-#
+# This sub-module creates the ECS Task definition
+# 
+module "ecs_task_definition" {
+  source = "./modules/ecs_task_definition/"
+
+  # The name of the task_definition ( generally, a combination of the cluster name and the service name.)
+  name         = "${local.cluster_name}-${var.name}"
+  cluster_name = "${local.cluster_name}"
+
+  # container_properties defines a list of maps of container_properties
+  container_properties = "${var.container_properties}"
+
+  # awsvpc_enabled sets if the ecs task definition is awsvpc 
+  awsvpc_enabled = "${local.awsvpc_enabled}"
+
+  # fargate_enabled sets if the ecs task definition has launch_type FARGATE
+  fargate_enabled = "${local.fargate_enabled}"
+
+  # cloudwatch_loggroup_name sets the loggroup name of the cloudwatch loggroup made for this service.
+  cloudwatch_loggroup_name = "${aws_cloudwatch_log_group.app.name}"
+
+  # container_envvars defines a list of maps filled with key-val pairs of environment variables needed for the ecs task definition.
+  container_envvars = "${var.container_envvars}"
+
+  # ecs_taskrole_arn sets the IAM role of the task.
+  ecs_taskrole_arn = "${module.iam.ecs_taskrole_arn}"
+
+  # ecs_task_execution_role_arn sets the task-execution role needed for FARGATE. This role is also empty in case of EC2
+  ecs_task_execution_role_arn = "${module.iam.ecs_task_execution_role_arn}"
+
+  # Launch type, either EC2 or FARGATE
+  launch_type = "${local.launch_type}"
+
+  # region, needed for Logging.. 
+  region = "${local.region}"
+}
+
 ##
 ## This sub-module creates the ECS Service
 ## 
