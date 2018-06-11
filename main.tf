@@ -186,7 +186,8 @@ module "ecs_service" {
 
   container_port = "${module.ecs_task_definition.container0_port}"
 
-  depends_on = ["module.alb_handling.listener_added"]
+  # This way we force the aws_lb_listener_rule to have finished before creating the ecs_service
+  depends_on = ["${module.alb_handling.listener_added}"]
 }
 
 #
