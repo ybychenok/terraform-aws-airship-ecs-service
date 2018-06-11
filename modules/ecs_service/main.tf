@@ -1,12 +1,6 @@
 locals {
   awsvpc_enabled = "${length(var.awsvpc_subnets) > 0 ? true : false }"
-
-  # not sure how to do a negation of a boolean
-  awsvpc_disabled = "${length(var.awsvpc_subnets) > 0 ? false : true }"
-
-  #
   lb_attached     = "${var.lb_attached}"
-  lb_not_attached = "${var.lb_attached ? false :  true }"
 }
 
 # Make an LB connected service dependent of this rule
@@ -51,7 +45,7 @@ resource "aws_ecs_service" "app_with_lb_awsvpc" {
 }
 
 resource "aws_ecs_service" "app_with_lb" {
-  count           = "${var.create && local.awsvpc_disabled && local.lb_attached ? 1 : 0}"
+  count           = "${var.create && !local.awsvpc_enabled && local.lb_attached ? 1 : 0}"
   name            = "${var.name}"
   launch_type     = "${var.launch_type}"
   cluster         = "${var.cluster_id}"
@@ -76,7 +70,7 @@ resource "aws_ecs_service" "app_with_lb" {
 }
 
 resource "aws_ecs_service" "app" {
-  count = "${var.create && local.lb_not_attached && local.awsvpc_disabled? 1 : 0 }"
+  count = "${var.create && ! local.lb_attached && ! local.awsvpc_enabled ? 1 : 0 }"
 
   name            = "${var.name}"
   launch_type     = "${var.launch_type}"
@@ -90,7 +84,7 @@ resource "aws_ecs_service" "app" {
 }
 
 resource "aws_ecs_service" "app_awsvpc" {
-  count = "${var.create && local.lb_not_attached && local.awsvpc_enabled ? 1 : 0 }"
+  count = "${var.create && ! local.lb_attached && local.awsvpc_enabled ? 1 : 0 }"
 
   name            = "${var.name}"
   launch_type     = "${var.launch_type}"

@@ -51,9 +51,11 @@ module "demo_web" {
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
   awsvpc_security_group_ids = ["${module.demo_sg.this_security_group_id}"]
 
-  # load_balancing_properties take care of binding the service to an ( Application Load Balancer) ALB
+  # load_balancing_properties takes care of binding the service to an ( Application Load Balancer) ALB
+  # when left-out the service, will not be attached to a load-balancer 
   load_balancing_properties {
-    # The ARN of the ALB
+
+    # The ARN of the ALB, when left-out the service, will not be attached to a load-balance
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"
     # https listener ARN
     lb_listener_arn_https = "${element(module.alb_shared_services_ext.https_listener_arns,0)}"
