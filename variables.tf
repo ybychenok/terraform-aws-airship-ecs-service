@@ -5,26 +5,12 @@ variable "create" {
   default = true
 }
 
-## ecs_properties map defines the vars for the ECS Cluster, it default to EC2 as service_launch_type
-## 
-variable "ecs_properties" {
-  type = "map"
+# The ECS Cluster name
+variable "ecs_cluster_name" {}
 
-  default = {
-    # ecs_cluster_name is the ECS Cluster name
-    ecs_cluster_name = ""
-
-    # service_launch_type is the launch_type used for this service, either EC2 or FARGATE
-    service_launch_type = "EC2"
-  }
-}
-
-variable "default_ecs_properties_ecs_cluster_name" {
-  default = ""
-}
-
-variable "default_ecs_properties_service_launch_type" {
-  default = "EC2"
+# With fargate_enabled the launchtype of the service will be FARGATE, otherwise EC2 ( default is false)
+variable "fargate_enabled" {
+  default = false
 }
 
 ## load_balancing_properties map defines the map for services hooked to a load balancer

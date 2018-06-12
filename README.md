@@ -40,12 +40,8 @@ module "demo_web" {
 
   name   = "demo-web"
 
-
-  # ECS Service properties
-  ecs_properties {
-    ecs_cluster_name    = "${local.cluster_name}"
-    service_launch_type = "FARGATE"
-  }
+  ecs_cluster_name = "${local.cluster_name}"
+  fargate_enabled = true
 
   # AWSVPC Block, with awsvpc_subnets defined the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
@@ -164,10 +160,8 @@ module "demo-web" {
   name   = "demo5-web"
 
   # 
-  ecs_properties {
-    ecs_cluster_name    = "${local.cluster_name}"
-    service_launch_type = "EC2"
-  }
+  ecs_cluster_name = "${local.cluster_name}"
+  fargate_enabled = true
 
   load_balancing_properties {
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"

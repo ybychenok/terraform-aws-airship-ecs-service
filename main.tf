@@ -6,11 +6,10 @@ data "aws_ecs_cluster" "this" {
 
 locals {
   cluster_id   = "${data.aws_ecs_cluster.this.arn}"
-  cluster_name = "${lookup(var.ecs_properties,"ecs_cluster_name")}"
+  cluster_name = "${var.ecs_cluster_name}"
   region       = "${data.aws_region.current.name}"
 
-  fargate_enabled = "${lookup(var.ecs_properties,"service_launch_type", "EC2") == "FARGATE" ? true : false }"
-  launch_type     = "${local.fargate_enabled ? "FARGATE" : "EC2" }"
+  launch_type     = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
 
   awsvpc_enabled = "${length(var.awsvpc_subnets) > 0 ? true : false }"
 }
@@ -43,7 +42,7 @@ module "iam" {
   s3_rw_paths = "${var.s3_rw_paths}"
 
   # In case Fargate is enabled an extra role needs to be added
-  fargate_enabled = "${local.fargate_enabled}"
+  fargate_enabled = "${var.fargate_enabled}"
 }
 
 #
@@ -121,7 +120,7 @@ module "ecs_task_definition" {
   awsvpc_enabled = "${local.awsvpc_enabled}"
 
   # fargate_enabled sets if the ecs task definition has launch_type FARGATE
-  fargate_enabled = "${local.fargate_enabled}"
+  fargate_enabled = "${var.fargate_enabled}"
 
   # cloudwatch_loggroup_name sets the loggroup name of the cloudwatch loggroup made for this service.
   cloudwatch_loggroup_name = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
