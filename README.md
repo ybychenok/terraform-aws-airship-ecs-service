@@ -23,6 +23,7 @@ Maarten
 * [ ] Terratest..
 * [ ] Service discovery
 * [ ] SSL SNI Adding for custom hostnames
+* [ ] Integrated IAM Permissions for *
 
 ## Will not feature
 * [ ] mounting EFS mounts within ECS Task, in theory possible, but stateful workloads should not be on ECS anyway
@@ -31,7 +32,7 @@ Maarten
 * [ ] At destroy, aws_appautoscaling_policy.policy.1: Failed to delete scaling policy: ObjectNotFoundException, 
 
 
-## Simple ECS Service on Fargate with ALB Attached
+## Simple ECS Service on Fargate with ALB Attached, together with a simple non ALB attached worker
 
 ```hcl
 
@@ -44,6 +45,7 @@ module "demo_web" {
   fargate_enabled = true
 
   # AWSVPC Block, with awsvpc_subnets defined the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
+  awsvpc_enabled = true
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
   awsvpc_security_group_ids = ["${module.demo_sg.this_security_group_id}"]
 
@@ -90,8 +92,6 @@ module "demo_web" {
 
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {
-       KEVIN = "bacon"
-       ECS = "OK"
        TASK_TYPE = "web" 
   } 
 
@@ -145,8 +145,45 @@ module "demo_web" {
 
   # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-write fashion. 
   s3_rw_paths = []
-
 }
+
+module "demo_worker" {
+  source = "github.com/blinkist/airship-tf-ecs-service/"
+
+  name   = "demo-worker"
+
+  ecs_cluster_name = "${local.cluster_name}"
+  fargate_enabled = true
+  awsvpc_enabled = true
+
+  # AWSVPC Block, with awsvpc_subnets defined the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
+  awsvpc_subnets            = ["${module.vpc.private_subnets}"]
+  awsvpc_security_group_ids = ["${module.demo_sg.this_security_group_id}"]
+
+  container_properties = [
+    {
+      image_url  = "nginx:latest"
+      name       = "nginx"
+      port       = "80"
+      mem        = "512"
+      cpu        = "256"
+    },
+  ]
+
+  # Initial ENV Variables for the ECS Task definition
+  container_envvars  {
+       TASK_TYPE = "worker" 
+  } 
+
+  capacity_properties {
+    desired_capacity     = "1"
+  }
+
+  kms_keys  = ["${module.global-kms.aws_kms_key_arn}", "${module.demo-kms.aws_kms_key_arn}"]
+  ssm_paths = ["${module.global-kms.name}", "${module.demo-kms.name}"]
+}
+
+
 ```
 
 ## Simple ECS Service on ECS with ALB Attached and no autoscaling
@@ -158,9 +195,7 @@ module "demo-web" {
 
   name   = "demo5-web"
 
-  # 
   ecs_cluster_name = "${local.cluster_name}"
-  fargate_enabled = true
 
   load_balancing_properties {
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"
@@ -214,5 +249,4 @@ module "demo-web" {
 
 
 ## Outputs
-
 ecs_taskrole_arn - The ARN of the IAM Role for this task, can be used to add attach other IAM Permissions
