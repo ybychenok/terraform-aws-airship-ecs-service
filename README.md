@@ -83,7 +83,6 @@ module "demo_web" {
       image_url  = "nginx:latest"
       name       = "nginx"
       port       = "80"
-      health_uri = "/ping"
       mem        = "512"
       cpu        = "256"
     },

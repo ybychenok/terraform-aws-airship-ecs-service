@@ -5,8 +5,7 @@ data "aws_caller_identity" "current" {
 
 # Asume Role Policy for the ECS Task
 data "aws_iam_policy_document" "ecs_task_asume_role" {
-  #count = "${var.create ? 1 : 0 }"
-  count = "1"
+  count = "${var.create ? 1 : 0 }"
 
   statement {
     effect  = "Allow"

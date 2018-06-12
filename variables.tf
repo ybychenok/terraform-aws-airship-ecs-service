@@ -13,6 +13,11 @@ variable "fargate_enabled" {
   default = false
 }
 
+# With awsvpc_enabled the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
+variable "awsvpc_enabled" {
+  default = false
+}
+
 ## load_balancing_properties map defines the map for services hooked to a load balancer
 variable "load_balancing_properties" {
   type = "map"

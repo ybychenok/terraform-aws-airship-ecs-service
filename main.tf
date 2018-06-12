@@ -10,8 +10,6 @@ locals {
   region       = "${data.aws_region.current.name}"
 
   launch_type     = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
-
-  awsvpc_enabled = "${length(var.awsvpc_subnets) > 0 ? true : false }"
 }
 
 #
@@ -91,7 +89,7 @@ module "alb_handling" {
   health_uri = "${lookup(var.load_balancing_properties,"health_uri", var.default_load_balancing_properties_health_uri)}"
 
   # target_type is the alb_target_group target, in case of EC2 it's instance, in case of FARGATE it's IP
-  target_type = "${local.awsvpc_enabled ? "ip" : "instance"}"
+  target_type = "${var.awsvpc_enabled ? "ip" : "instance"}"
 }
 
 ###### CloudWatch Logs
@@ -117,7 +115,7 @@ module "ecs_task_definition" {
   container_properties = "${var.container_properties}"
 
   # awsvpc_enabled sets if the ecs task definition is awsvpc 
-  awsvpc_enabled = "${local.awsvpc_enabled}"
+  awsvpc_enabled = "${var.awsvpc_enabled}"
 
   # fargate_enabled sets if the ecs task definition has launch_type FARGATE
   fargate_enabled = "${var.fargate_enabled}"
@@ -146,7 +144,8 @@ module "ecs_task_definition" {
 # 
 module "ecs_service" {
   source = "./modules/ecs_service/"
-  name   = "${local.cluster_name}-${var.name}"
+
+  name   = "${var.name}"
 
   # create defines if resources are being created inside this module
   create = "${var.create}"
