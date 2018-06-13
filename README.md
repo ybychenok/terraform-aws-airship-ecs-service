@@ -2,12 +2,11 @@
 
 ## Intro
 
-This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically.
+This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically, adds extra scaling properties.
 
+### Application Load balancer ( ALB ) attachment
 
 ![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/alb_public.png)
-
-### Application Load balancer ( ALB ) Attaching
 
 By using the feature of ALB Rule based forwarding this module uses one ALB for many different microservices. For each ECS Service connected to a Load Balancer a Listener_rule is made based on the host-header ( domain-name ) of the ECS Service. Traffic is forwarded to the by the module created TargetGroup of the ECS Service.
 
@@ -33,6 +32,9 @@ This works for both Externally visible services as for internal visible services
 
 
 ### "Service Discovery" ALB Based
+
+![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/alb_discovery.png)
+
 Kubernetes style service discovery is great for very dynamic environments, however it's lacking the nicest feature a load balancer will provide.. Connection draining. 
 With connection draining a service will not log timeouts the moment a service is being deployed, the load balancer is completely taking care of handling the connections while replacing the ECS Tasks of a service. When this module is used together with an (Internal) load balancer, the services will be created using a pattern._k
 
@@ -55,6 +57,7 @@ SSM is a perfect way to store application parameters securely. The ECS Module pr
 The full path which is given access to is being interpolated as such: "arn:aws:ssm:region:123456:parameter/application/%s/*". Parameters encrypted with KMS
 will be automatically decrypted by most of the AWS libraries as long as the ECS Service also has access to the KMS key.
 
+https://github.com/remind101/ssm-env
 https://medium.com/@tdi/ssm-parameter-store-for-keeping-secrets-in-a-structured-way-53a25d48166a
 
 ### S3 Access
@@ -307,7 +310,6 @@ module "demo-web" {
 }
 
 ```
-
 
 ## Outputs
 ecs_taskrole_arn - The ARN of the IAM Role for this task, can be used to add attach other IAM Permissions
