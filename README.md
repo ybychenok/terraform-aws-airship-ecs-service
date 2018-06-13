@@ -61,7 +61,7 @@ https://medium.com/@tdi/ssm-parameter-store-for-keeping-secrets-in-a-structured-
 
 ### S3 Access
 
-The module also provide simple access to S3 by the variables s3_ro_paths, and s3_rw_paths. In case the list is populated with S3 bucket names and folders, e.g. ["bucketname1/path","bucketname1/path2","bucketname3"], the module will ensure the ECS Service will have access to these resources, in either read only or read-write fashion, depending on if s3_ro_paths or s3_rw_paths has been used. Again, if KMS is used for S3 storage, the module need to have the KMS Key filled in at kms_keys.
+The module also provide simple access to S3 by the variables s3_ro_paths, and s3_rw_paths. In case the list is populated with S3 bucket names and folders, e.g. ["bucketname1/path","bucketname1/path2","bucketname3"], the module will ensure the ECS Service will have access to these resources, in either read only or read-write fashion, depending on if s3_ro_paths or s3_rw_paths have been used. Again, if KMS is used for encrypting S3 storage, the module need to be provided with the that KMS Key id.
 
 ### Cloudwatch logging
 
