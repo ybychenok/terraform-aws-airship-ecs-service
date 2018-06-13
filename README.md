@@ -1,12 +1,63 @@
 # AWS ECS Service Terraform Module
 
-Hi there ! This module is Work in Progress! Do not source from github. 
-Do you see any issues? Create an issue!
+## Intro
 
-Thanks,
+This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically.
 
-Maarten
 
+### Application Load balancer ( ALB ) Attaching
+
+When the module has ALB properties defined it will be connected to an application load balancer by creating:
+  1.  lb_listener_rule based on the name of the service.
+  1a. Optional lb_listener_rule based on the variable custom_listen_host
+  2.  A route53 record inside the Route53 Zone pointing to the load balancer.
+
+This works for both Externally visible services as for internal visible services. In this example we have 
+
+Company domain: mycorp.com
+
+Terraform development external route53 domain:     dev.mycorp.com
+Terraform development internal route53 domain: dev-int.mycorp.com
+
+== Internet Facing ALB  *.dev.mycorp.com == 
+api.dev.mycorp. => api ecs service
+web.dev.mycorp. => web ecs service
+
+#alb_public.png
+
+
+### "Service Discovery"
+Kubernetes style service discovery is great for very dynamic environments, however it's lacking the nicest feature a load balancer will provide.. Connection draining. With connection draining a service will not log timeouts the moment a service is being deployed, the load balancer is completely taking care of handling the connections while replacing the ECS Tasks of a service. When this module is used together with an (Internal) load balancer, the services will be created using a pattern.
+
+[ name ] . [ route53_zone domain ]
+
+In case dev-int.mycorp.com is used as domain for the internal ALB, the route53 records are being created which can be used by other ECS Services to connect to.
+
+== Internal ALB  *.dev-int.mycorp.com == 
+micro1.dev-int.mycorp. => micro1 ecs service
+micro2.dev-int.mycorp. => micro2 ecs service
+micro3.dev-int.mycorp. => micro3 ecs service
+micro3.dev-int.mycorp. => micro4 ecs service
+
+### KMS and SSM Management
+
+SSM is a perfect way to store application parameters securely. The ECS Module provides a way to give access to certain paths inside the SSM Parameter store.
+The full path which is given access to is being interpolated as such: "arn:aws:ssm:region:123456:parameter/application/%s/*". Parameters encrypted with KMS
+will be automatically decrypted by most of the AWS libraries as long as the ECS Service also has access to the KMS key.
+
+https://medium.com/@tdi/ssm-parameter-store-for-keeping-secrets-in-a-structured-way-53a25d48166a
+
+### S3 Access
+
+The module also provide simple access to S3 by the variables s3_ro_paths, and s3_rw_paths. In case the list is populated with S3 bucket names and folders, e.g. ["bucketname1/path","bucketname1/path2","bucketname3"], the module will ensure the ECS Service will have access to these resources, in either read only or read-write fashion, depending on if s3_ro_pathsor s3_rw_paths has been used. Again, if KMS is used for S3 storage, the module need to have the KMS Key filled in at kms_keys.
+
+### Cloudwatch logging
+
+The default logging driver configured for the ECS Service is AWS Logging.
+
+### Extra permissions
+
+The Role ARN of the ECS Service is exported, and can be used to add other permissions e.g. to allow a service to make a cloudfront invalidation.
 
 ## Features
 * [x] Can be conditionally created
@@ -21,7 +72,8 @@ Maarten
 * [x] Handling of Creating listener rules to one ALB
 * [x] Exports role arn for adding permissions 
 * [ ] Terratest..
-* [ ] Service discovery
+* [ ] ECS Service discovery
+* [ ] Path based ALB Rules 
 * [ ] SSL SNI Adding for custom hostnames
 * [ ] Integrated IAM Permissions for *
 
