@@ -2,7 +2,7 @@
 
 ## Intro
 
-This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically, adds extra scaling properties.
+ECS is AWS' original offering for Docker Orchestration. Albeit less feature rich that K8S (EKS) it has proved to be an extremely stable platform for hosting stateless docker services. This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically, adds extra scaling properties.
 
 ### Application Load balancer ( ALB ) attachment
 
