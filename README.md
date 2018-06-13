@@ -2,7 +2,7 @@
 
 ## Intro
 
-ECS is AWS' original offering for Docker Orchestration. Albeit less feature rich that K8S (EKS) it has proved to be an extremely stable platform for hosting stateless docker services. This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically, adds extra scaling properties.
+ECS is AWS' original offering for Docker Orchestration. Albeit less feature rich that K8S (EKS) it has proved to be an extremely stable platform for hosting stateless docker services. This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically, adds extra scaling properties. By design it's not meant to update the ECS Services through Terraform once they have been created, other open source projects like - https://github.com/silinternational/ecs-deploy - are perfect for this.
 
 ### Application Load balancer ( ALB ) attachment
 
@@ -52,11 +52,11 @@ In case dev-int.mycorp.com is used as domain for the internal ALB, the route53 r
 
 ### KMS and SSM Management
 
-SSM is a perfect way to store application parameters securely. The ECS Module provides a way to give access to certain paths inside the SSM Parameter store.
-The full path which is given access to is being interpolated as such: "arn:aws:ssm:region:123456:parameter/application/%s/*". Parameters encrypted with KMS
+SSM is the prefered way to store application parameters securely instead of using ENV varaibles. The ECS Module provides a way to give access to certain paths inside the SSM Parameter store. The full path which is given access to is being interpolated as such: "arn:aws:ssm:region:123456:parameter/application/%s/*". Parameters encrypted with KMS
 will be automatically decrypted by most of the AWS libraries as long as the ECS Service also has access to the KMS key.
 
 https://github.com/remind101/ssm-env
+
 https://medium.com/@tdi/ssm-parameter-store-for-keeping-secrets-in-a-structured-way-53a25d48166a
 
 ### S3 Access
