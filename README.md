@@ -13,7 +13,7 @@ By using the feature of ALB Rule based forwarding this module uses one ALB for m
 
 When the module has ALB properties defined it will be connected to an application load balancer by creating:
 1.  lb_listener_rule based on the name of the service.
-1a. Optional lb_listener_rule based on the variable custom_listen_host
+* 1a. Optional lb_listener_rule based on the variable custom_listen_host
 2.  A route53 record inside the Route53 Zone pointing to the load balancer.
 
 This works for both Externally visible services as for internal visible services. In this example we have 
