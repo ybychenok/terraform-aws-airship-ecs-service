@@ -35,8 +35,7 @@ This works for both Externally visible services as for internal visible services
 
 ![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/alb_discovery.png)
 
-Kubernetes style service discovery is great for very dynamic environments, however it's lacking the nicest feature a load balancer will provide.. Connection draining. 
-With connection draining a service will not log timeouts the moment a service is being deployed, the load balancer is completely taking care of handling the connections while replacing the ECS Tasks of a service. When this module is used together with an (Internal) load balancer, the services will be created using a pattern._k
+Unlike kubernetes style service discovery based on DNS which lack connection draining, ALB Discovery adds a service to a load balancer and takes care of draining connections the moment an update takes place. One Application Load Balancer can have multiple microservices as a backend by creating Layer 4-7 rules for the HTTP Host Header. Based on the Host: header traffic will be forwarded to an ECS Service.
 
 ~~~
   [ name ] . [ route53_zone domain ]
@@ -45,10 +44,10 @@ With connection draining a service will not log timeouts the moment a service is
 In case dev-int.mycorp.com is used as domain for the internal ALB, the route53 records are being created which can be used by other ECS Services to connect to.
 ~~~
   == Internal ALB  *.dev-int.mycorp.com == 
-  micro1.dev-int.mycorp. => micro1 ecs service
-  micro2.dev-int.mycorp. => micro2 ecs service
+  books.dev-int.mycorp. => micro1 ecs service
+  mail.dev-int.mycorp. => micro2 ecs service
   micro3.dev-int.mycorp. => micro3 ecs service
-  micro3.dev-int.mycorp. => micro4 ecs service
+  micro4.dev-int.mycorp. => micro4 ecs service
 ~~~
 
 ### KMS and SSM Management
@@ -62,7 +61,7 @@ https://medium.com/@tdi/ssm-parameter-store-for-keeping-secrets-in-a-structured-
 
 ### S3 Access
 
-The module also provide simple access to S3 by the variables s3_ro_paths, and s3_rw_paths. In case the list is populated with S3 bucket names and folders, e.g. ["bucketname1/path","bucketname1/path2","bucketname3"], the module will ensure the ECS Service will have access to these resources, in either read only or read-write fashion, depending on if s3_ro_pathsor s3_rw_paths has been used. Again, if KMS is used for S3 storage, the module need to have the KMS Key filled in at kms_keys.
+The module also provide simple access to S3 by the variables s3_ro_paths, and s3_rw_paths. In case the list is populated with S3 bucket names and folders, e.g. ["bucketname1/path","bucketname1/path2","bucketname3"], the module will ensure the ECS Service will have access to these resources, in either read only or read-write fashion, depending on if s3_ro_paths or s3_rw_paths has been used. Again, if KMS is used for S3 storage, the module need to have the KMS Key filled in at kms_keys.
 
 ### Cloudwatch logging
 
