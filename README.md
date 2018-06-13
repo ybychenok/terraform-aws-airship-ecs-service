@@ -18,13 +18,15 @@ When the module has ALB properties defined it will be connected to an applicatio
 
 This works for both Externally visible services as for internal visible services. In this example we have 
 
-Company domain: mycorp.com
   
 ~~~
+  Company domain: mycorp.com
+
   Terraform development external route53 domain:     dev.mycorp.com
   Terraform development internal route53 domain: dev-int.mycorp.com
   
   == Internet Facing ALB  *.dev.mycorp.com == 
+
   api.dev.mycorp. => api ecs service
   web.dev.mycorp. => web ecs service
 ~~~
@@ -34,7 +36,9 @@ Company domain: mycorp.com
 Kubernetes style service discovery is great for very dynamic environments, however it's lacking the nicest feature a load balancer will provide.. Connection draining. 
 With connection draining a service will not log timeouts the moment a service is being deployed, the load balancer is completely taking care of handling the connections while replacing the ECS Tasks of a service. When this module is used together with an (Internal) load balancer, the services will be created using a pattern._k
 
+~~~
   [ name ] . [ route53_zone domain ]
+~~~
 
 In case dev-int.mycorp.com is used as domain for the internal ALB, the route53 records are being created which can be used by other ECS Services to connect to.
 ~~~
@@ -303,7 +307,6 @@ module "demo-web" {
 }
 
 ```
-
 
 
 ## Outputs
