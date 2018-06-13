@@ -5,6 +5,8 @@
 This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically.
 
 
+![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/alb_public.png)
+
 ### Application Load balancer ( ALB ) Attaching
 
 When the module has ALB properties defined it will be connected to an application load balancer by creating:
@@ -15,15 +17,13 @@ When the module has ALB properties defined it will be connected to an applicatio
 This works for both Externally visible services as for internal visible services. In this example we have 
 
 Company domain: mycorp.com
-
+  
   Terraform development external route53 domain:     dev.mycorp.com
   Terraform development internal route53 domain: dev-int.mycorp.com
-
+  
   == Internet Facing ALB  *.dev.mycorp.com == 
   api.dev.mycorp. => api ecs service
   web.dev.mycorp. => web ecs service
-
-![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/alb_public.png)
 
 
 ### "Service Discovery"
