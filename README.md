@@ -217,6 +217,7 @@ module "demo_worker" {
   name   = "demo-worker"
 
   ecs_cluster_name = "${local.cluster_name}"
+
   fargate_enabled = true
   awsvpc_enabled = true
 
@@ -250,7 +251,7 @@ module "demo_worker" {
 
 ```
 
-## Simple ECS Service on ECS with ALB Attached and no autoscaling
+## Simple ECS Service on EC2-ECS with ALB Attached and no autoscaling
 
 ```hcl
 
@@ -299,12 +300,6 @@ module "demo-web" {
 
   # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
   ssm_paths = ["${module.global-kms.name}", "${module.demo-kms.name}"]
-
-  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-only fashion. 
-  s3_ro_paths = []
-
-  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-write fashion. 
-  s3_rw_paths = []
 
 }
 
