@@ -8,36 +8,36 @@ This module is meant to be one-size-fits-all ECS Service module. A module which 
 ### Application Load balancer ( ALB ) Attaching
 
 When the module has ALB properties defined it will be connected to an application load balancer by creating:
-  1.  lb_listener_rule based on the name of the service.
-  1a. Optional lb_listener_rule based on the variable custom_listen_host
-  2.  A route53 record inside the Route53 Zone pointing to the load balancer.
+1.  lb_listener_rule based on the name of the service.
+1a. Optional lb_listener_rule based on the variable custom_listen_host
+2.  A route53 record inside the Route53 Zone pointing to the load balancer.
 
 This works for both Externally visible services as for internal visible services. In this example we have 
 
 Company domain: mycorp.com
 
-Terraform development external route53 domain:     dev.mycorp.com
-Terraform development internal route53 domain: dev-int.mycorp.com
+  Terraform development external route53 domain:     dev.mycorp.com
+  Terraform development internal route53 domain: dev-int.mycorp.com
 
-== Internet Facing ALB  *.dev.mycorp.com == 
-api.dev.mycorp. => api ecs service
-web.dev.mycorp. => web ecs service
+  == Internet Facing ALB  *.dev.mycorp.com == 
+  api.dev.mycorp. => api ecs service
+  web.dev.mycorp. => web ecs service
 
-#alb_public.png
+![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/alb_public.png)
 
 
 ### "Service Discovery"
 Kubernetes style service discovery is great for very dynamic environments, however it's lacking the nicest feature a load balancer will provide.. Connection draining. With connection draining a service will not log timeouts the moment a service is being deployed, the load balancer is completely taking care of handling the connections while replacing the ECS Tasks of a service. When this module is used together with an (Internal) load balancer, the services will be created using a pattern.
 
-[ name ] . [ route53_zone domain ]
+  [ name ] . [ route53_zone domain ]
 
 In case dev-int.mycorp.com is used as domain for the internal ALB, the route53 records are being created which can be used by other ECS Services to connect to.
 
-== Internal ALB  *.dev-int.mycorp.com == 
-micro1.dev-int.mycorp. => micro1 ecs service
-micro2.dev-int.mycorp. => micro2 ecs service
-micro3.dev-int.mycorp. => micro3 ecs service
-micro3.dev-int.mycorp. => micro4 ecs service
+  == Internal ALB  *.dev-int.mycorp.com == 
+  micro1.dev-int.mycorp. => micro1 ecs service
+  micro2.dev-int.mycorp. => micro2 ecs service
+  micro3.dev-int.mycorp. => micro3 ecs service
+  micro3.dev-int.mycorp. => micro4 ecs service
 
 ### KMS and SSM Management
 
