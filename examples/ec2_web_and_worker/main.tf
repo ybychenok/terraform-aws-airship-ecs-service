@@ -1,6 +1,6 @@
 locals {
   cluster_name = "web"
-  workspace = "dev"
+  workspace    = "dev"
 }
 
 module "vpc" {
@@ -42,7 +42,6 @@ module "private_alb_sg" {
     },
   ]
 }
-
 
 module "public_alb_sg" {
   source  = "terraform-aws-modules/security-group/aws"
@@ -89,7 +88,7 @@ module "global_kms" {
 }
 
 module "ecs_instance_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
+  source = "terraform-aws-modules/security-group/aws"
 
   name        = "ecs_instance_sg"
   description = "Security Group for the ECS Instance SG"
@@ -121,33 +120,32 @@ module "ecs_instance_sg" {
   ]
 }
 
-
 # Seperate ECS cluster for web services
 module "ecs_web" {
   source = "github.com/blinkist/airship-tf-ecs-cluster/"
 
-  name            = "${terraform.workspace}-web"
-  environment     = "${terraform.workspace}"
+  name        = "${terraform.workspace}-web"
+  environment = "${terraform.workspace}"
 
-  vpc_id          = "${module.vpc.vpc_id}"
-  subnet_ids      = ["${module.vpc.private_subnets}"]
+  vpc_id     = "${module.vpc.vpc_id}"
+  subnet_ids = ["${module.vpc.private_subnets}"]
 
   cluster_properties {
-    create = true
-    ec2_key_name = "${aws_key_pair.main.key_name}"
+    create            = true
+    ec2_key_name      = "${aws_key_pair.main.key_name}"
     ec2_instance_type = "t2.small"
-    ec2_asg_min = "1"
-    ec2_asg_max = "1"
-    ec2_disk_size = "40"
-    ec2_disk_type = "gp2"
+    ec2_asg_min       = "1"
+    ec2_asg_max       = "1"
+    ec2_disk_size     = "40"
+    ec2_disk_type     = "gp2"
   }
 
   ecs_instance_scaling_create = false
 
-  vpc_security_group_ids = ["${module.ecs_instance_sg.this_security_group_id}","${module.admin_sg.this_security_group_id}"]
+  vpc_security_group_ids = ["${module.ecs_instance_sg.this_security_group_id}", "${module.admin_sg.this_security_group_id}"]
 
-  tags= {
-        Environment = "${terraform.workspace}"
+  tags = {
+    Environment = "${terraform.workspace}"
   }
 }
 
@@ -155,31 +153,30 @@ module "ecs_web" {
 module "ecs_worker" {
   source = "github.com/blinkist/airship-tf-ecs-cluster/"
 
-  name            = "${local.workspace}-worker"
-  environment     = "${local.workspace}"
+  name        = "${local.workspace}-worker"
+  environment = "${local.workspace}"
 
-  vpc_id          = "${module.vpc.vpc_id}"
-  subnet_ids      = ["${module.vpc.private_subnets}"]
+  vpc_id     = "${module.vpc.vpc_id}"
+  subnet_ids = ["${module.vpc.private_subnets}"]
 
   cluster_properties {
-    create = true
-    ec2_key_name = "${aws_key_pair.main.key_name}"
+    create            = true
+    ec2_key_name      = "${aws_key_pair.main.key_name}"
     ec2_instance_type = "t2.small"
-    ec2_asg_min = "1"
-    ec2_asg_max = "1"
-    ec2_disk_size = "40"
-    ec2_disk_type = "gp2"
+    ec2_asg_min       = "1"
+    ec2_asg_max       = "1"
+    ec2_disk_size     = "40"
+    ec2_disk_type     = "gp2"
   }
 
   ecs_instance_scaling_create = false
 
   vpc_security_group_ids = ["${module.ecs_instance_sg.this_security_group_id}"]
 
-  tags= {
-        Environment = "${local.workspace}"
+  tags = {
+    Environment = "${local.workspace}"
   }
 }
-
 
 # KMS Key used for demo_kms
 module "demo_kms" {
@@ -229,7 +226,6 @@ module "demo_web" {
 
   # The KMS Keys which can be used for kms:decrypt
   kms_keys = ["${module.global_kms.aws_kms_key_arn}", "${module.demo_kms.aws_kms_key_arn}"]
-
   # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
   # Using the names of the kms keys, as they correlate
   ssm_paths = ["${module.global_kms.name}", "${module.demo_kms.name}"]
@@ -238,7 +234,7 @@ module "demo_web" {
 module "demo_worker" {
   source = "github.com/blinkist/airship-tf-ecs-service/"
 
-  name   = "demo-worker"
+  name = "demo-worker"
 
   # We put worker-services on the web ECS Cluster. This way rogue workers processes cannot effect the web performance
   ecs_cluster_name = "${module.ecs_web.ecs_cluster_name}"
@@ -265,7 +261,6 @@ module "demo_worker" {
 
   # The KMS Keys which can be used for kms:decrypt
   kms_keys = ["${module.global_kms.aws_kms_key_arn}", "${module.demo_kms.aws_kms_key_arn}"]
-
   # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
   # Using the names of the kms keys, as they correlate
   ssm_paths = ["${module.global_kms.name}", "${module.demo_kms.name}"]

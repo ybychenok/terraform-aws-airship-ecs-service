@@ -9,7 +9,7 @@ locals {
   cluster_name = "${var.ecs_cluster_name}"
   region       = "${data.aws_region.current.name}"
 
-  launch_type     = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
+  launch_type = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
 }
 
 #
@@ -145,7 +145,7 @@ module "ecs_task_definition" {
 module "ecs_service" {
   source = "./modules/ecs_service/"
 
-  name   = "${var.name}"
+  name = "${var.name}"
 
   # create defines if resources are being created inside this module
   create = "${var.create}"

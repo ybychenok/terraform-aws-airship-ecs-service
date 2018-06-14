@@ -1,6 +1,6 @@
 locals {
   awsvpc_enabled = "${length(var.awsvpc_subnets) > 0 ? true : false }"
-  lb_attached     = "${var.lb_attached}"
+  lb_attached    = "${var.lb_attached}"
 }
 
 # Make an LB connected service dependent of this rule
