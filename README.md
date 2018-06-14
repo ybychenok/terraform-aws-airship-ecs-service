@@ -307,3 +307,4 @@ module "demo-web" {
 
 ## Outputs
 ecs_taskrole_arn - The ARN of the IAM Role for this task, can be used to add attach other IAM Permissions
+
