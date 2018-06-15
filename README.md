@@ -101,7 +101,8 @@ The Role ARN of the ECS Service is exported, and can be used to add other permis
 ```hcl
 
 module "demo_web" {
-  source = "github.com/blinkist/airship-tf-ecs-service/"
+  source  = "blinkist/airship-ecs-service/aws"
+  version = "0.1.0"
 
   name   = "demo-web"
 
@@ -211,8 +212,9 @@ module "demo_web" {
   s3_rw_paths = []
 }
 
-module "demo_worker" {
-  source = "github.com/blinkist/airship-tf-ecs-service/"
+module "demo_web" {
+  source  = "blinkist/airship-ecs-service/aws"
+  version = "0.1.0"
 
   name   = "demo-worker"
 
@@ -255,8 +257,9 @@ module "demo_worker" {
 
 ```hcl
 
-module "demo-web" {
-  source = "github.com/blinkist/airship-tf-ecs-service/"
+module "demo_web" {
+  source  = "blinkist/airship-ecs-service/aws"
+  version = "0.1.0"
 
   name   = "demo5-web"
 
