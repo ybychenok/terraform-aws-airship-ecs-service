@@ -18,7 +18,7 @@ When the module has ALB properties defined it will be connected to an applicatio
 This works for both Externally visible services as for internal visible services. In this example we have 
 
   
-~~~
+```
   Company domain: mycorp.com
 
   Terraform development external route53 domain:     dev.mycorp.com
@@ -28,7 +28,7 @@ This works for both Externally visible services as for internal visible services
 
   api.dev.mycorp. => api ecs service
   web.dev.mycorp. => web ecs service
-~~~
+```
 
 
 ### "Service Discovery" ALB Based
@@ -37,18 +37,18 @@ This works for both Externally visible services as for internal visible services
 
 Unlike kubernetes style service discovery based on DNS which lack connection draining, ALB Discovery adds a service to a load balancer and takes care of draining connections the moment an update takes place. One Application Load Balancer can have multiple microservices as a backend by creating Layer 4-7 rules for the HTTP Host Header. Based on the Host: header traffic will be forwarded to an ECS Service.
 
-~~~
+```
   [ name ] . [ route53_zone domain ]
-~~~
+```
 
 In case dev-int.mycorp.com is used as domain for the internal ALB, the route53 records are being created which can be used by other ECS Services to connect to.
-~~~
+```
   == Internal ALB  *.dev-int.mycorp.com == 
   books.dev-int.mycorp. => micro1 ecs service
   mail.dev-int.mycorp. => micro2 ecs service
   micro3.dev-int.mycorp. => micro3 ecs service
   micro4.dev-int.mycorp. => micro4 ecs service
-~~~
+```
 
 ### KMS and SSM Management
 
