@@ -1,5 +1,7 @@
 # AWS ECS Service Terraform Module
 
+![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/airship.png)
+
 ## Intro
 
 ECS is AWS' original offering for Docker Orchestration. Albeit less feature rich that K8S (EKS) it has proved to be an extremely stable platform for hosting stateless docker services. This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically, adds extra scaling properties. By design it's not meant to update the ECS Services through Terraform once they have been created, other open source projects like - https://github.com/silinternational/ecs-deploy - are perfect for this.
