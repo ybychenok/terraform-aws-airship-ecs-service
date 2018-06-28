@@ -5,6 +5,9 @@ variable "create" {
   default = true
 }
 
+# The amount time for Elastic Load Balancing to wait before changing the state of a deregistering target from draining to unused. The range is 0-3600 seconds. 
+variable "deregistration_delay" {}
+
 # unhealthy_threshold defines the threashold for the target_group after which a service is seen as unhealthy.
 variable "unhealthy_threshold" {}
 

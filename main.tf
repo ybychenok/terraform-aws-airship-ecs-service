@@ -73,6 +73,9 @@ module "alb_handling" {
   # if https_enabled is true, listener rules are made for the ssl listener
   https_enabled = "${lookup(var.load_balancing_properties,"https_enabled", var.default_load_balancing_properties_https_enabled)}"
 
+  # Sets the deregistration_delay for the targetgroup
+  deregistration_delay = "${lookup(var.load_balancing_properties,"deregistration_delay", var.default_load_balancing_properties_deregistration_delay)}"
+
   # create_route53_record sets if this module creates a Route53 zone.
   create_route53_record = "${lookup(var.load_balancing_properties,"create_route53_record", var.default_load_balancing_properties_create_route53_record)}"
 
@@ -175,8 +178,11 @@ module "ecs_service" {
   # lb_target_group_arn sets the arn of the target_group the service needs to connect to
   lb_target_group_arn = "${module.alb_handling.lb_target_group_arn}"
 
-  # desired_capacity sets the initial capacity in task of the ECS Service
+  # desired_capacity sets the initial capacity in task of the ECS Service, ignored when scheduling_strategy is DAEMON
   desired_capacity = "${lookup(var.capacity_properties,"desired_capacity", var.default_capacity_properties_desired_capacity)}"
+
+  # scheduling_strategy
+  scheduling_strategy = "${var.scheduling_strategy}"
 
   # container_name sets the name of the container, this is used for the load balancer section inside the ecs_service to connect to a container_name defined inside the 
   # task definition, container_port sets the port for the same container.

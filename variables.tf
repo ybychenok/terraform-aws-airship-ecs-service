@@ -18,6 +18,11 @@ variable "awsvpc_enabled" {
   default = false
 }
 
+# scheduling_strategy defaults to REPLICA
+variable "scheduling_strategy" {
+  default = "REPLICA"
+}
+
 ## load_balancing_properties map defines the map for services hooked to a load balancer
 variable "load_balancing_properties" {
   type = "map"
@@ -49,6 +54,10 @@ variable "default_load_balancing_properties_health_uri" {
 
 variable "default_load_balancing_properties_unhealthy_threshold" {
   default = "3"
+}
+
+variable "default_load_balancing_properties_deregistration_delay" {
+  default = 300
 }
 
 variable "default_load_balancing_properties_https_enabled" {

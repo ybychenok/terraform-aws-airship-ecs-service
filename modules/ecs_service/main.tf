@@ -20,8 +20,9 @@ resource "aws_ecs_service" "app_with_lb_awsvpc" {
   cluster         = "${var.cluster_id}"
   task_definition = "${var.ecs_task_definition_arn}"
 
-  desired_count = "${var.desired_capacity}"
-  launch_type   = "${var.launch_type}"
+  desired_count       = "${var.desired_capacity}"
+  launch_type         = "${var.launch_type}"
+  scheduling_strategy = "${var.scheduling_strategy}"
 
   deployment_maximum_percent         = "${var.deployment_maximum_percent}"
   deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
@@ -51,7 +52,8 @@ resource "aws_ecs_service" "app_with_lb" {
   cluster         = "${var.cluster_id}"
   task_definition = "${var.ecs_task_definition_arn}"
 
-  desired_count = "${var.desired_capacity}"
+  desired_count       = "${var.desired_capacity}"
+  scheduling_strategy = "${var.scheduling_strategy}"
 
   deployment_maximum_percent         = "${var.deployment_maximum_percent}"
   deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
@@ -72,11 +74,12 @@ resource "aws_ecs_service" "app_with_lb" {
 resource "aws_ecs_service" "app" {
   count = "${var.create && ! local.lb_attached && ! local.awsvpc_enabled ? 1 : 0 }"
 
-  name            = "${var.name}"
-  launch_type     = "${var.launch_type}"
-  cluster         = "${var.cluster_id}"
-  task_definition = "${var.ecs_task_definition_arn}"
-  desired_count   = "${var.desired_capacity}"
+  name                = "${var.name}"
+  launch_type         = "${var.launch_type}"
+  scheduling_strategy = "${var.scheduling_strategy}"
+  cluster             = "${var.cluster_id}"
+  task_definition     = "${var.ecs_task_definition_arn}"
+  desired_count       = "${var.desired_capacity}"
 
   lifecycle {
     ignore_changes = ["desired_count", "task_definition"]
@@ -86,11 +89,12 @@ resource "aws_ecs_service" "app" {
 resource "aws_ecs_service" "app_awsvpc" {
   count = "${var.create && ! local.lb_attached && local.awsvpc_enabled ? 1 : 0 }"
 
-  name            = "${var.name}"
-  launch_type     = "${var.launch_type}"
-  cluster         = "${var.cluster_id}"
-  task_definition = "${var.ecs_task_definition_arn}"
-  desired_count   = "${var.desired_capacity}"
+  name                = "${var.name}"
+  launch_type         = "${var.launch_type}"
+  scheduling_strategy = "${var.scheduling_strategy}"
+  cluster             = "${var.cluster_id}"
+  task_definition     = "${var.ecs_task_definition_arn}"
+  desired_count       = "${var.desired_capacity}"
 
   lifecycle {
     ignore_changes = ["desired_count", "task_definition"]

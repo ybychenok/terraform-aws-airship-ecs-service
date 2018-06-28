@@ -29,6 +29,9 @@ variable "container_name" {}
 # The container port
 variable "container_port" {}
 
+# scheduling_strategy defaults to Replica
+variable "scheduling_strategy" {}
+
 # deployment_maximum_percent sets the maximum size of the total capacity in tasks in % compared to the normal capacity at deployment
 variable "deployment_maximum_percent" {}
 

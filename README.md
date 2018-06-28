@@ -111,6 +111,8 @@ module "demo_web" {
   ecs_cluster_name = "${local.cluster_name}"
   fargate_enabled = true
 
+  # scheduling_strategy = REPLICA
+
   # AWSVPC Block, with awsvpc_subnets defined the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
   awsvpc_enabled = true
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
@@ -145,6 +147,9 @@ module "demo_web" {
 
     # health_uri defines which health-check uri the target group needs to check on for health_check, defaults to /ping
     # health_uri = "/ping"
+
+    # The amount time for Elastic Load Balancing to wait before changing the state of a deregistering target from draining to unused. The range is 0-3600 seconds. 
+    # deregistration_delay = "300"
   }
 
   container_properties = [
@@ -225,6 +230,8 @@ module "demo_web" {
   fargate_enabled = true
   awsvpc_enabled = true
 
+  # scheduling_strategy = REPLICA
+
   # AWSVPC Block, with awsvpc_subnets defined the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
   awsvpc_security_group_ids = ["${module.demo_sg.this_security_group_id}"]
@@ -266,6 +273,8 @@ module "demo_web" {
   name   = "demo5-web"
 
   ecs_cluster_name = "${local.cluster_name}"
+
+  # scheduling_strategy = REPLICA
 
   load_balancing_properties {
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"

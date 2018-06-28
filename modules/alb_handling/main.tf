@@ -27,12 +27,13 @@ resource "aws_route53_record" "record" {
 ## aws_lb_target_group inside the ECS Task will be created when the service is not the default forwarding service
 ## It will not be created when the service is not attached to a load balancer like a worker
 resource "aws_lb_target_group" "service" {
-  count       = "${local.create ? 1 : 0 }"
-  name        = "${var.cluster_name}-${var.name}"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = "${var.lb_vpc_id}"
-  target_type = "${var.target_type}"
+  count                = "${local.create ? 1 : 0 }"
+  name                 = "${var.cluster_name}-${var.name}"
+  port                 = 80
+  protocol             = "HTTP"
+  vpc_id               = "${var.lb_vpc_id}"
+  target_type          = "${var.target_type}"
+  deregistration_delay = "${var.deregistration_delay}"
 
   health_check {
     path                = "${var.health_uri}"
