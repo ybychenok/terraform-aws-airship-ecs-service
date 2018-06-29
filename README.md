@@ -85,6 +85,8 @@ The Role ARN of the ECS Service is exported, and can be used to add other permis
 * [x] Integrated Service Scaling
 * [x] Handling of Creating listener rules to one ALB
 * [x] Exports role arn for adding permissions 
+* [x] Deregistration delay parameter allows for fast deployments
+* [x] The scheduling_strategy DAEMON/REPLICA can be set 
 * [ ] Terratest..
 * [ ] ECS Service discovery
 * [ ] Path based ALB Rules 
@@ -93,9 +95,6 @@ The Role ARN of the ECS Service is exported, and can be used to add other permis
 
 ## Will not feature
 * [ ] mounting EFS mounts within ECS Task, in theory possible, but stateful workloads should not be on ECS anyway
-
-## known issues
-* [ ] At destroy, aws_appautoscaling_policy.policy.1: Failed to delete scaling policy: ObjectNotFoundException, 
 
 
 ## Simple ECS Service on Fargate with ALB Attached, together with a simple non ALB attached worker
@@ -111,7 +110,7 @@ module "demo_web" {
   ecs_cluster_name = "${local.cluster_name}"
   fargate_enabled = true
 
-  # scheduling_strategy = REPLICA
+  # scheduling_strategy = "REPLICA"
 
   # AWSVPC Block, with awsvpc_subnets defined the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
   awsvpc_enabled = true
@@ -230,7 +229,7 @@ module "demo_web" {
   fargate_enabled = true
   awsvpc_enabled = true
 
-  # scheduling_strategy = REPLICA
+  # scheduling_strategy = "REPLICA"
 
   # AWSVPC Block, with awsvpc_subnets defined the network_mode for the ECS task definition will be awsvpc, defaults to bridge 
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
@@ -274,7 +273,7 @@ module "demo_web" {
 
   ecs_cluster_name = "${local.cluster_name}"
 
-  # scheduling_strategy = REPLICA
+  # scheduling_strategy = "REPLICA""""
 
   load_balancing_properties {
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"
