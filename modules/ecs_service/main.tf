@@ -96,6 +96,11 @@ resource "aws_ecs_service" "app_awsvpc" {
   task_definition     = "${var.ecs_task_definition_arn}"
   desired_count       = "${var.desired_capacity}"
 
+  network_configuration {
+    subnets         = ["${var.awsvpc_subnets}"]
+    security_groups = ["${var.awsvpc_security_group_ids}"]
+  }
+
   lifecycle {
     ignore_changes = ["desired_count", "task_definition"]
   }
