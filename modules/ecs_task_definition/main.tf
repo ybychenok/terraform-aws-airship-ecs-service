@@ -23,13 +23,20 @@ locals {
   container0_port = "${lookup(var.container_properties[0], "port")}"
 }
 
+# environment variables set to true are converted to 0 or 1 when it comes from a null_resource. We change the string and replace it later
+# https://github.com/hashicorp/terraform/issues/13512
 # we use the null_resource triggers to create a list of key value maps
+
+variable "my_random" {
+  default = "random460d168ecd774089a8f31b6dfde9285b"
+}
+
 resource "null_resource" "envvars_as_list_of_maps" {
   count = "${length(keys(var.container_envvars))}"
 
   triggers = "${map(
     "name", "${element(keys(var.container_envvars), count.index)}",
-    "value", "${element(values(var.container_envvars), count.index)}",
+    "value", "${var.my_random}${element(values(var.container_envvars), count.index)}",
   )}"
 }
 
@@ -44,7 +51,9 @@ data "template_file" "task_definition" {
     region    = "${var.region}"
     cpu       = "${lookup(var.container_properties[count.index], "cpu")}"
     mem       = "${lookup(var.container_properties[count.index], "mem")}"
-    envvars   = "${jsonencode(null_resource.envvars_as_list_of_maps.*.triggers)}"
+
+    # We remove the earlier prepended variable to mitigate https://github.com/hashicorp/terraform/issues/13512
+    envvars = "${replace(jsonencode(null_resource.envvars_as_list_of_maps.*.triggers), var.my_random, "")}"
 
     # We only create a  portmapping  for the first container
     portmappings_block = "${count.index == 0 ? data.template_file.portmapping.rendered : ""}"

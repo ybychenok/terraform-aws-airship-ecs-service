@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "kms_permissions" {
 # Allow KMS-Decrypt permissions for the ECS Task Role
 resource "aws_iam_role_policy" "kms_permissions" {
   count  = "${var.create ? 1 : 0 }"
-  name   = "kms_permissions"
+  name   = "kms-permissions"
   role   = "${aws_iam_role.ecs_tasks_role.id}"
   policy = "${data.aws_iam_policy_document.kms_permissions.json}"
 }
@@ -64,15 +64,15 @@ data "aws_iam_policy_document" "ssm_permissions" {
 
   statement {
     effect    = "Allow"
-    actions   = ["kms:GetParameter", "ssm:GetParametersByPath"]
-    resources = ["${join("\", \"", formatlist("arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/application/%s/*",var.ssm_paths))}"]
+    actions   = ["ssm:GetParameter", "ssm:GetParametersByPath"]
+    resources = ["${formatlist("arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/application/%s/*",var.ssm_paths)}"]
   }
 }
 
 # Add the ssm policy to the task role
 resource "aws_iam_role_policy" "ssm_permissions" {
   count  = "${var.create ? 1 : 0 }"
-  name   = "ssm-policy"
+  name   = "ssm-permissions"
   role   = "${aws_iam_role.ecs_tasks_role.id}"
   policy = "${data.aws_iam_policy_document.ssm_permissions.json}"
 }
@@ -84,13 +84,13 @@ data "aws_iam_policy_document" "s3_rw_permissions" {
   statement {
     effect    = "Allow"
     actions   = ["s3:ListBucket"]
-    resources = ["${join("\", \"", formatlist("arn:aws:s3:::%s",var.s3_rw_paths))}"]
+    resources = ["${formatlist("arn:aws:s3:::%s",var.s3_rw_paths)}"]
   }
 
   statement {
     effect    = "Allow"
     actions   = ["s3:*"]
-    resources = ["${join("\", \"", formatlist("arn:aws:s3:::%s/*",var.s3_rw_paths))}"]
+    resources = ["${formatlist("arn:aws:s3:::%s/*",var.s3_rw_paths)}"]
   }
 }
 
@@ -101,13 +101,13 @@ data "aws_iam_policy_document" "s3_ro_permissions" {
   statement {
     effect    = "Allow"
     actions   = ["s3:ListBucket"]
-    resources = ["${join("\", \"", formatlist("arn:aws:s3:::%s",var.s3_ro_paths))}"]
+    resources = ["${formatlist("arn:aws:s3:::%s",var.s3_ro_paths)}"]
   }
 
   statement {
     effect    = "Allow"
     actions   = ["s3:GetObject"]
-    resources = ["${join("\", \"", formatlist("arn:aws:s3:::%s/*",var.s3_ro_paths))}"]
+    resources = ["${formatlist("arn:aws:s3:::%s/*",var.s3_ro_paths)}"]
   }
 }
 
