@@ -2,31 +2,31 @@
 
 ![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/airship.png)
 
-## Intro
+## Introduction
 
-ECS is AWS' original offering for Docker Orchestration. Albeit less feature rich that K8S (EKS) it has proved to be an extremely stable platform for hosting stateless docker services. This module is meant to be one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, give it the necessary IAM rights automatically, adds extra scaling properties. By design it's not meant to update the ECS Services through Terraform once they have been created, other open source projects like - https://github.com/silinternational/ecs-deploy - are perfect for this.
+ECS is AWS's original offering for Docker Orchestration. Although less feature rich than Kubernetes (EKS), it has proved to be an extremely stable platform for hosting stateless Docker services. This Terraform module is meant to be a one-size-fits-all ECS Service module. A module which makes it easy for any developer to create an ECS Service, have it attached to a load balancer, automatically grant it the necessary IAM permissions, and add extra scaling properties. By design it's not meant to update the ECS Services through Terraform once they have been created; rather, this is better handled by other open source projects like https://github.com/silinternational/ecs-deploy 
 
-### Application Load balancer ( ALB ) attachment
+### Application Load Balancer (ALB) attachment
 
 ![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/alb_public.png)
 
-By using the feature of ALB Rule based forwarding this module uses one ALB for many different microservices. For each ECS Service connected to a Load Balancer a Listener_rule is made based on the host-header ( domain-name ) of the ECS Service. Traffic is forwarded to the by the module created TargetGroup of the ECS Service.
+By using the rule-based forwarding features of ALB, this module uses one ALB for many different microservices. For each ECS Service connected to a Load Balancer, a _Listener Rule_ is made based on the host-header (domain-name) of the ECS Service. Traffic is forwarded to them by the module-created _TargetGroup_ of the ECS Service.
 
-When the module has ALB properties defined it will be connected to an application load balancer by creating:
-1.  lb_listener_rule based on the name of the service.
-* 1a. Optional lb_listener_rule based on the variable custom_listen_hosts
-2.  A route53 record inside the Route53 Zone pointing to the load balancer.
+When the module has ALB properties defined it will be connected to an Application Load Balancer by creating:
+1. a `lb_listener_rule` based on the name of the service.
+* 1a. (optional) a `lb_listener_rule` based on the variable `custom_listen_hosts`
+2.  a route53 record inside the Route 53 Zone pointing to the load balancer.
 
-This works for both Externally visible services as for internal visible services. In this example we have 
+This works for both externally visible services and for internally visible services. In this example we have:
 
-  
+
 ```
   Company domain: mycorp.com
 
   Terraform development external route53 domain:     dev.mycorp.com
   Terraform development internal route53 domain: dev-int.mycorp.com
   
-  == Internet Facing ALB  *.dev.mycorp.com == 
+  == Internet-Facing ALB  *.dev.mycorp.com == 
 
   api.dev.mycorp. => api ecs service
   web.dev.mycorp. => web ecs service
@@ -37,13 +37,13 @@ This works for both Externally visible services as for internal visible services
 
 ![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/alb_discovery.png)
 
-Unlike kubernetes style service discovery based on DNS which lack connection draining, ALB Discovery adds a service to a load balancer and takes care of draining connections the moment an update takes place. One Application Load Balancer can have multiple microservices as a backend by creating Layer 4-7 rules for the HTTP Host Header. Based on the Host: header traffic will be forwarded to an ECS Service.
+Unlike Kubernetes-style service discovery based on DNS, which lacks connection draining, ALB discovery adds a service to a load balancer and takes care of draining connections the moment an update takes place. One ALB can have multiple microservices as a backend by creating Layer 4-7 rules for the HTTP Host Header. Based on the `Host:` header, traffic will be forwarded to an ECS Service.
 
 ```
   [ name ] . [ route53_zone domain ]
 ```
 
-In case dev-int.mycorp.com is used as domain for the internal ALB, the route53 records are being created which can be used by other ECS Services to connect to.
+In case `dev-int.mycorp.com` is used as domain for the internal ALB, the route53 records are being created which can be used by other ECS Services to connect to.
 ```
   == Internal ALB  *.dev-int.mycorp.com == 
   books.dev-int.mycorp. => micro1 ecs service
@@ -54,7 +54,7 @@ In case dev-int.mycorp.com is used as domain for the internal ALB, the route53 r
 
 ### KMS and SSM Management
 
-SSM is the prefered way to store application parameters securely instead of using ENV varaibles. The ECS Module provides a way to give access to certain paths inside the SSM Parameter store. The full path which is given access to is being interpolated as such: "arn:aws:ssm:region:123456:parameter/application/%s/*". Parameters encrypted with KMS
+AWS Systems Manager (also known as SSM) is the preferred way to store application parameters securely instead of using environment variables. The ECS module provides a way to give access to certain paths inside the [SSM Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html). The full path which is given access to is being interpolated as such: "arn:aws:ssm:region:123456:parameter/application/%s/*". Parameters encrypted with KMS
 will be automatically decrypted by most of the AWS libraries as long as the ECS Service also has access to the KMS key.
 
 https://github.com/remind101/ssm-env
