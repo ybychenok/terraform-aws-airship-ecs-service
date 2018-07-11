@@ -157,6 +157,7 @@ module "demo_web" {
       name       = "nginx"
       port       = "80"
       mem        = "512"
+      # mem_reservation = "null"
       cpu        = "256"
     },
   ]
@@ -241,6 +242,7 @@ module "demo_web" {
       name       = "nginx"
       port       = "80"
       mem        = "512"
+      # mem_reservation = "null"
       cpu        = "256"
     },
   ]

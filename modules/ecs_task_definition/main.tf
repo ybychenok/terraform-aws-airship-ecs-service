@@ -52,6 +52,8 @@ data "template_file" "task_definition" {
     cpu       = "${lookup(var.container_properties[count.index], "cpu")}"
     mem       = "${lookup(var.container_properties[count.index], "mem")}"
 
+    mem_reservation = "${lookup(var.container_properties[count.index], "mem_reservation","null")}"
+
     # We remove the earlier prepended variable to mitigate https://github.com/hashicorp/terraform/issues/13512
     envvars = "${replace(jsonencode(null_resource.envvars_as_list_of_maps.*.triggers), var.my_random, "")}"
 
@@ -61,7 +63,7 @@ data "template_file" "task_definition" {
     container_name = "${lookup(var.container_properties[count.index], "name")}"
 
     # In non-awsvpc environments we can set the hostname
-    hostname_block = "${var.awsvpc_enabled == 0 ? "\"hostname\":\"${var.cluster_name}-${var.name}-${count.index}\",\n" :""}"
+    hostname_block = "${var.awsvpc_enabled == 0 ? "\"hostname\":\"${var.name}-${count.index}\",\n" :""}"
 
     # Cloudwatch logging
     log_group_region = "${var.region}"

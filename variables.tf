@@ -110,9 +110,12 @@ variable "default_capacity_properties_deployment_minimum_healthy_percent" {
 #     # The port of the application
 #     port       = "80"
 #
+#     # mem_reservation defines the soft limit for the container, defaults to null
+#     mem_reservation  = "null"
+#
 #     # memory defines the needed memory for the container
 #     mem        = "512"
-
+#
 #     # cpu defines the needed cpu for the container
 #     cpu        = "256"
 #  }]
@@ -130,6 +133,10 @@ variable "default_container_properties_name" {
 }
 
 variable "default_container_properties_port" {
+  default = ""
+}
+
+variable "default_container_properties_mem_reservation" {
   default = ""
 }
 

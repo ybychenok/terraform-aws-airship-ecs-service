@@ -3,6 +3,7 @@
     "essential": true,
     "image": "${image_url}",
     "memory": ${mem},
+    "memoryReservation": ${mem_reservation},
     "name": "${container_name}",
     ${hostname_block}
     ${portmappings_block}
