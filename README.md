@@ -14,7 +14,7 @@ By using the feature of ALB Rule based forwarding this module uses one ALB for m
 
 When the module has ALB properties defined it will be connected to an application load balancer by creating:
 1.  lb_listener_rule based on the name of the service.
-* 1a. Optional lb_listener_rule based on the variable custom_listen_host
+* 1a. Optional lb_listener_rule based on the variable custom_listen_hosts
 2.  A route53 record inside the Route53 Zone pointing to the load balancer.
 
 This works for both Externally visible services as for internal visible services. In this example we have 
@@ -141,15 +141,15 @@ module "demo_web" {
     # After which threshold in health check is the task marked as unhealthy, defaults to 3
     # unhealthy_threshold   = "3"
 
-    # custom_listen_host defines an extra listener rule for this specific host-header, defaults to empty
-    # custom_listen_host    = "www.example.com"
-
     # health_uri defines which health-check uri the target group needs to check on for health_check, defaults to /ping
     # health_uri = "/ping"
 
     # The amount time for Elastic Load Balancing to wait before changing the state of a deregistering target from draining to unused. The range is 0-3600 seconds. 
     # deregistration_delay = "300"
   }
+
+  # custom_listen_hosts defines extra listener rules to route to the ALB Targetgroup
+  custom_listen_hosts    = ["www.example.com"]
 
   container_properties = [
     {

@@ -69,9 +69,9 @@ variable "create_route53_record" {
   default = true
 }
 
-# the custom_listen_host will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
-variable "custom_listen_host" {
-  default = ""
+# the custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
+variable "custom_listen_hosts" {
+  default = []
 }
 
 # When https is enabled we create https listener_rules

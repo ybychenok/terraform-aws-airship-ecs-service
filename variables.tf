@@ -23,6 +23,11 @@ variable "scheduling_strategy" {
   default = "REPLICA"
 }
 
+# Extra hosts the ALB needs to make listener_rules for to the ECS target group
+variable "custom_listen_hosts" {
+  default = []
+}
+
 ## load_balancing_properties map defines the map for services hooked to a load balancer
 variable "load_balancing_properties" {
   type = "map"

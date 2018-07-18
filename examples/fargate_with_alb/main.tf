@@ -130,8 +130,9 @@ module "demo_web" {
     route53_zone_id       = "${aws_route53_zone.shared_ext_services_domain.zone_id}"
     create_route53_record = true
     unhealthy_threshold   = "3"
-    custom_listen_host    = "www.example.com"
   }
+
+  custom_listen_hosts = ["www.example.com"]
 
   container_properties = [
     {

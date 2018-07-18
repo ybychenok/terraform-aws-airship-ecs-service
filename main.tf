@@ -85,8 +85,8 @@ module "alb_handling" {
   # Sets name for the sub-domain, we default to *name
   route53_name = "${var.name}"
 
-  # the custom_listen_host will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
-  custom_listen_host = "${lookup(var.load_balancing_properties,"custom_listen_host", "")}"
+  # the custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
+  custom_listen_hosts = "${var.custom_listen_hosts}"
 
   # health_uri defines which health-check uri the target group needs to check on for health_check
   health_uri = "${lookup(var.load_balancing_properties,"health_uri", var.default_load_balancing_properties_health_uri)}"
