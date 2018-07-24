@@ -59,19 +59,19 @@ resource "aws_ecs_service" "app_with_lb_spread" {
   deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
 
   ordered_placement_strategy {
-     field = "attribute:ecs.availability-zone"
-     type  = "spread"
-   }
- 
-   ordered_placement_strategy {
-     field = "instanceId"
-     type  = "spread"
-   }
- 
-   ordered_placement_strategy {
-     field = "memory"
-     type  = "binpack"
-   }
+    field = "attribute:ecs.availability-zone"
+    type  = "spread"
+  }
+
+  ordered_placement_strategy {
+    field = "instanceId"
+    type  = "spread"
+  }
+
+  ordered_placement_strategy {
+    field = "memory"
+    type  = "binpack"
+  }
 
   load_balancer {
     target_group_arn = "${var.lb_target_group_arn}"

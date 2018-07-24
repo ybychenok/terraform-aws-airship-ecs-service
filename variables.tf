@@ -22,7 +22,6 @@ variable "awsvpc_enabled" {
 variable "scheduling_strategy" {
   default = "REPLICA"
 }
- 
 
 # Spread tasks over ECS Cluster based on AZ, Instance-id, memory
 variable "with_placement_strategy" {
