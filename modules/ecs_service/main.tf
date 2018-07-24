@@ -102,7 +102,6 @@ resource "aws_ecs_service" "app_awsvpc" {
   deployment_maximum_percent         = "${var.deployment_maximum_percent}"
   deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
 
-
   network_configuration {
     subnets         = ["${var.awsvpc_subnets}"]
     security_groups = ["${var.awsvpc_security_group_ids}"]
