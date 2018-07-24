@@ -81,6 +81,9 @@ resource "aws_ecs_service" "app" {
   task_definition     = "${var.ecs_task_definition_arn}"
   desired_count       = "${var.desired_capacity}"
 
+  deployment_maximum_percent         = "${var.deployment_maximum_percent}"
+  deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
+
   lifecycle {
     ignore_changes = ["desired_count", "task_definition"]
   }
@@ -95,6 +98,10 @@ resource "aws_ecs_service" "app_awsvpc" {
   cluster             = "${var.cluster_id}"
   task_definition     = "${var.ecs_task_definition_arn}"
   desired_count       = "${var.desired_capacity}"
+
+  deployment_maximum_percent         = "${var.deployment_maximum_percent}"
+  deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
+
 
   network_configuration {
     subnets         = ["${var.awsvpc_subnets}"]
