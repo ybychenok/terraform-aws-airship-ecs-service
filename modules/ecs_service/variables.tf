@@ -57,3 +57,6 @@ variable "lb_target_group_arn" {
 variable "lb_attached" {
   default = true
 }
+
+# Spread tasks over ECS Cluster based on AZ, Instance-id, memory
+variable "with_placement_strategy" {}

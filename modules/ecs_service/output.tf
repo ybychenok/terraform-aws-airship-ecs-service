@@ -5,6 +5,6 @@ output "ecs_service_name" {
   value = "${local.awsvpc_enabled ? 
                 ( local.lb_attached ? join("",aws_ecs_service.app_with_lb_awsvpc.*.name) : join("",aws_ecs_service.app_awsvpc.*.name) ) 
                 :
-                ( local.lb_attached ? join("",aws_ecs_service.app_with_lb.*.name) : join("",aws_ecs_service.app.*.name) ) 
+                ( local.lb_attached ? ( var.with_placement_strategy ? join("",aws_ecs_service.app_with_lb_spread.*.name) : join("",aws_ecs_service.app_with_lb.*.name)) : join("",aws_ecs_service.app.*.name) ) 
   }"
 }
