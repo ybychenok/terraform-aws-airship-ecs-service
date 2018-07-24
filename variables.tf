@@ -23,6 +23,11 @@ variable "scheduling_strategy" {
   default = "REPLICA"
 }
 
+# Spread tasks over ECS Cluster based on AZ, Instance-id, memory
+variable "with_placement_strategy" {
+  default = false
+}
+
 # Extra hosts the ALB needs to make listener_rules for to the ECS target group
 variable "custom_listen_hosts" {
   default = []

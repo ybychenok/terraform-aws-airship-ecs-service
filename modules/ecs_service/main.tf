@@ -45,8 +45,49 @@ resource "aws_ecs_service" "app_with_lb_awsvpc" {
   depends_on = ["null_resource.aws_lb_listener_rules"]
 }
 
+resource "aws_ecs_service" "app_with_lb_spread" {
+  count           = "${var.create && !local.awsvpc_enabled && local.lb_attached && var.with_placement_strategy ? 1 : 0}"
+  name            = "${var.name}"
+  launch_type     = "${var.launch_type}"
+  cluster         = "${var.cluster_id}"
+  task_definition = "${var.ecs_task_definition_arn}"
+
+  desired_count       = "${var.desired_capacity}"
+  scheduling_strategy = "${var.scheduling_strategy}"
+
+  deployment_maximum_percent         = "${var.deployment_maximum_percent}"
+  deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
+
+  ordered_placement_strategy {
+    field = "attribute:ecs.availability-zone"
+    type  = "spread"
+  }
+
+  ordered_placement_strategy {
+    field = "instanceId"
+    type  = "spread"
+  }
+
+  ordered_placement_strategy {
+    field = "memory"
+    type  = "binpack"
+  }
+
+  load_balancer {
+    target_group_arn = "${var.lb_target_group_arn}"
+    container_name   = "${var.container_name}"
+    container_port   = "${var.container_port}"
+  }
+
+  lifecycle {
+    ignore_changes = ["desired_count", "task_definition", "revision"]
+  }
+
+  depends_on = ["null_resource.aws_lb_listener_rules"]
+}
+
 resource "aws_ecs_service" "app_with_lb" {
-  count           = "${var.create && !local.awsvpc_enabled && local.lb_attached ? 1 : 0}"
+  count           = "${var.create && !local.awsvpc_enabled && local.lb_attached && !var.with_placement_strategy ? 1 : 0}"
   name            = "${var.name}"
   launch_type     = "${var.launch_type}"
   cluster         = "${var.cluster_id}"
