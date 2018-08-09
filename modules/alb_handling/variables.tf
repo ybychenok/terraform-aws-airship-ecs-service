@@ -71,6 +71,7 @@ variable "create_route53_record" {
 
 # the custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
 variable "custom_listen_hosts" {
+  type    = "list"
   default = []
 }
 

@@ -31,6 +31,7 @@ variable "with_placement_strategy" {
 # Extra hosts the ALB needs to make listener_rules for to the ECS target group
 variable "custom_listen_hosts" {
   default = []
+  type    = "list"
 }
 
 ## load_balancing_properties map defines the map for services hooked to a load balancer
