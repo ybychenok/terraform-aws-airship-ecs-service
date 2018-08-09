@@ -77,10 +77,20 @@ resource "aws_lb_listener_rule" "host_based_routing_ssl" {
   }
 }
 
+data "template_file" "custom_listen_host" {
+  count = "${length(var.custom_listen_hosts)}"
+
+  template = "$${listen_host}"
+
+  vars {
+    listen_host = "${var.custom_listen_hosts[count.index]}"
+  }
+}
+
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_custom_listen_host" {
-  count = "${local.create && length(var.custom_listen_hosts) > 0 ? length(var.custom_listen_hosts) : 0}"
+  count = "${local.create && length(var.custom_listen_hosts) > 0 ? length(var.custom_listen_hosts) : 0 }"
 
   listener_arn = "${var.lb_listener_arn}"
 
@@ -91,14 +101,14 @@ resource "aws_lb_listener_rule" "host_based_routing_custom_listen_host" {
 
   condition {
     field  = "host-header"
-    values = ["${var.custom_listen_hosts[count.index]}"]
+    values = ["${data.template_file.custom_listen_host.*.rendered[count.index]}"]
   }
 }
 
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_ssl_custom_listen_host" {
-  count = "${local.create && length(var.custom_listen_hosts) > 0 ? length(var.custom_listen_hosts) : 0}"
+  count = "${local.create && length(var.custom_listen_hosts) > 0 ? length(var.custom_listen_hosts) : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
 
@@ -109,7 +119,7 @@ resource "aws_lb_listener_rule" "host_based_routing_ssl_custom_listen_host" {
 
   condition {
     field  = "host-header"
-    values = ["${var.custom_listen_hosts[count.index]}"]
+    values = ["${data.template_file.custom_listen_host.*.rendered[count.index]}"]
   }
 }
 
