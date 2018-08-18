@@ -1,33 +1,48 @@
-locals {
-  # We only create when var.create is true and a LB ARN is given
-  create = "${(var.create && length(var.lb_arn) > 0 ) ? true : false }"
-}
-
-data "aws_route53_zone" "selected" {
-  count   = "${(local.create && var.create_route53_record ) ? 1 : 0 }"
-  zone_id = "${var.route53_zone_id}"
-}
-
 data "aws_lb" "main" {
-  count = "${local.create ? 1 : 0}"
+  count = "${var.create ? 1 : 0}"
   arn   = "${var.lb_arn}"
+}
+
+locals {
+  # Validate the record type by looking up the map with valid record types
+  route53_record_type = "${lookup(var.allowed_record_types,var.route53_record_type)}"
 }
 
 ## Route53 DNS Record
 resource "aws_route53_record" "record" {
-  count   = "${(local.create && var.create_route53_record ) ? 1 : 0 }"
-  zone_id = "${data.aws_route53_zone.selected.zone_id}"
+  count   = "${(var.create && var.create_route53_record && local.route53_record_type == "CNAME" ) ? 1 : 0 }"
+  zone_id = "${var.route53_zone_id}"
   name    = "${var.route53_name}"
   type    = "CNAME"
   ttl     = "300"
   records = ["${data.aws_lb.main.dns_name}"]
 }
 
+## Route53 DNS Record
+resource "aws_route53_record" "record_alias_a" {
+  count   = "${(var.create && var.create_route53_record && local.route53_record_type == "A") ? 1 : 0 }"
+  zone_id = "${var.route53_zone_id}"
+  name    = "${var.route53_name}"
+  type    = "A"
+
+  alias {
+    name                   = "${data.aws_lb.main.dns_name}"
+    zone_id                = "${data.aws_lb.main.zone_id}"
+    evaluate_target_health = true
+  }
+
+  weighted_routing_policy {
+    weight = 0
+  }
+
+  set_identifier = "${var.route53_a_record_identifier}"
+}
+
 ##
 ## aws_lb_target_group inside the ECS Task will be created when the service is not the default forwarding service
 ## It will not be created when the service is not attached to a load balancer like a worker
 resource "aws_lb_target_group" "service" {
-  count                = "${local.create ? 1 : 0 }"
+  count                = "${var.create ? 1 : 0 }"
   name                 = "${var.cluster_name}-${var.name}"
   port                 = 80
   protocol             = "HTTP"
@@ -44,7 +59,7 @@ resource "aws_lb_target_group" "service" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing" {
-  count = "${local.create && var.create_route53_record ? 1 : 0 }"
+  count = "${var.create && var.create_route53_record ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn}"
 
@@ -54,15 +69,20 @@ resource "aws_lb_listener_rule" "host_based_routing" {
   }
 
   condition {
-    field  = "host-header"
-    values = ["${join("",aws_route53_record.record.*.fqdn)}"]
+    field = "host-header"
+
+    values = ["${local.route53_record_type == "CNAME" ? 
+       join("",aws_route53_record.record.*.fqdn)
+       :
+       join("",aws_route53_record.record_alias_a.*.fqdn)
+       }"]
   }
 }
 
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_ssl" {
-  count = "${local.create && var.https_enabled && var.create_route53_record? 1 : 0 }"
+  count = "${var.create && var.https_enabled && var.create_route53_record? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
 
@@ -72,8 +92,13 @@ resource "aws_lb_listener_rule" "host_based_routing_ssl" {
   }
 
   condition {
-    field  = "host-header"
-    values = ["${join("",aws_route53_record.record.*.fqdn)}"]
+    field = "host-header"
+
+    values = ["${local.route53_record_type == "CNAME" ? 
+       join("",aws_route53_record.record.*.fqdn)
+       :
+       join("",aws_route53_record.record_alias_a.*.fqdn)
+       }"]
   }
 }
 
@@ -90,7 +115,7 @@ data "template_file" "custom_listen_host" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_custom_listen_host" {
-  count = "${local.create ? length(var.custom_listen_hosts) : 0 }"
+  count = "${var.create ? length(var.custom_listen_hosts) : 0 }"
 
   listener_arn = "${var.lb_listener_arn}"
 
@@ -108,7 +133,7 @@ resource "aws_lb_listener_rule" "host_based_routing_custom_listen_host" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_ssl_custom_listen_host" {
-  count = "${local.create ? length(var.custom_listen_hosts) : 0 }"
+  count = "${var.create ? length(var.custom_listen_hosts) : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
 

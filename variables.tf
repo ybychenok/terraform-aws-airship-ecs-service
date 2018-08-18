@@ -34,6 +34,11 @@ variable "custom_listen_hosts" {
   type    = "list"
 }
 
+# load_balancing_enabled defines if we are using a load balancer for our ecs service
+variable "load_balancing_enabled" {
+  default = false
+}
+
 ## load_balancing_properties map defines the map for services hooked to a load balancer
 variable "load_balancing_properties" {
   type = "map"
@@ -75,8 +80,19 @@ variable "default_load_balancing_properties_https_enabled" {
   default = true
 }
 
+variable "default_load_balancing_properties_route53_a_record_identifier" {
+  default = "identifier"
+}
+
 variable "default_load_balancing_properties_create_route53_record" {
   default = true
+}
+
+# By default we create a CNAME to the ALB, the moment terraform can handle CNAME to IN A ALIAS record changes
+# Route53 IN A Alias will be the default.
+# https://github.com/terraform-providers/terraform-provider-aws/issues/5280
+variable "default_load_balancing_properties_route53_record_type" {
+  default = "CNAME"
 }
 
 ## capacity_properties map defines the capacity properties of the service

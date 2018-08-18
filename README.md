@@ -117,9 +117,14 @@ module "demo_web" {
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
   awsvpc_security_group_ids = ["${module.demo_sg.this_security_group_id}"]
 
-  # load_balancing_properties takes care of binding the service to an ( Application Load Balancer) ALB
-  # when left-out the service, will not be attached to a load-balancer 
+  # load_balancing_enabled sets if a load balancer will be attached to the ecs service / target group
+  load_balancing_enabled = true
   load_balancing_properties {
+    # The default route53 record type, currently CNAME to be backwards compatible
+    # route53_record_type = "CNAME"
+
+    # Unique identifier for the weighted IN A Alias Record 
+    # route53_a_record_identifier = "identifier"
 
     # The ARN of the ALB, when left-out the service, will not be attached to a load-balance
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"
@@ -277,7 +282,13 @@ module "demo_web" {
 
   # scheduling_strategy = "REPLICA""""
 
+  # use_alb needs to be set to true
+  load_balancing_enabled = true
   load_balancing_properties {
+    # The default route53 record type, currently CNAME to be backwards compatible
+    # route53_record_type = "CNAME"
+    # Unique identifier for the weighted IN A Alias Record 
+    # route53_a_record_identifier = "identifier"
     lb_arn                = "${module.alb_shared_services_ext.load_balancer_id}"
     lb_listener_arn_https = "${element(module.alb_shared_services_ext.https_listener_arns,0)}"
     lb_listener_arn       = "${element(module.alb_shared_services_ext.http_tcp_listener_arns,0)}"

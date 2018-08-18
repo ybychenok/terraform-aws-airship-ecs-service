@@ -69,6 +69,17 @@ variable "create_route53_record" {
   default = true
 }
 
+# Small Lookup map to validate route53_record_type
+variable "allowed_record_types" {
+  default = {
+    CNAME = "CNAME"
+    A     = "A"
+  }
+}
+
+# route53_record_type, one of the allowed values of the map allowed_record_types
+variable "route53_record_type" {}
+
 # the custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
 variable "custom_listen_hosts" {
   type    = "list"
@@ -79,3 +90,6 @@ variable "custom_listen_hosts" {
 variable "https_enabled" {
   default = true
 }
+
+# namespace, sets the namespace, currently used for the weighted IN A Alias record which needs an identifier
+variable "route53_a_record_identifier" {}
