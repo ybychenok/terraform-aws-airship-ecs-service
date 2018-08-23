@@ -10,7 +10,7 @@ locals {
 
 ## Route53 DNS Record
 resource "aws_route53_record" "record" {
-  count   = "${(var.create && var.create_route53_record && local.route53_record_type == "CNAME" ) ? 1 : 0 }"
+  count   = "${(var.create && local.route53_record_type == "CNAME" ) ? 1 : 0 }"
   zone_id = "${var.route53_zone_id}"
   name    = "${var.route53_name}"
   type    = "CNAME"
@@ -20,7 +20,7 @@ resource "aws_route53_record" "record" {
 
 ## Route53 DNS Record
 resource "aws_route53_record" "record_alias_a" {
-  count   = "${(var.create && var.create_route53_record && local.route53_record_type == "A") ? 1 : 0 }"
+  count   = "${(var.create && local.route53_record_type == "ALIAS") ? 1 : 0 }"
   zone_id = "${var.route53_zone_id}"
   name    = "${var.route53_name}"
   type    = "A"
@@ -31,11 +31,13 @@ resource "aws_route53_record" "record_alias_a" {
     evaluate_target_health = true
   }
 
+  # When all records in a group have weight set to 0, traffic is routed to all resources with equal probability
+  # https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-values-weighted-alias.html#rrsets-values-weighted-alias-weight
   weighted_routing_policy {
     weight = 0
   }
 
-  set_identifier = "${var.route53_a_record_identifier}"
+  set_identifier = "${var.route53_record_identifier}"
 }
 
 ##
@@ -59,7 +61,7 @@ resource "aws_lb_target_group" "service" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing" {
-  count = "${var.create && var.create_route53_record ? 1 : 0 }"
+  count = "${var.create && local.route53_record_type != "NONE" ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn}"
 
@@ -82,7 +84,7 @@ resource "aws_lb_listener_rule" "host_based_routing" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_ssl" {
-  count = "${var.create && var.https_enabled && var.create_route53_record? 1 : 0 }"
+  count = "${var.create && local.route53_record_type != "NONE" ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
 

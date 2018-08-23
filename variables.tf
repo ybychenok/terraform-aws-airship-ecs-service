@@ -80,16 +80,12 @@ variable "default_load_balancing_properties_https_enabled" {
   default = true
 }
 
-variable "default_load_balancing_properties_route53_a_record_identifier" {
+variable "default_load_balancing_properties_route53_record_identifier" {
   default = "identifier"
 }
 
-variable "default_load_balancing_properties_create_route53_record" {
-  default = true
-}
-
-# By default we create a CNAME to the ALB, the moment terraform can handle CNAME to IN A ALIAS record changes
-# Route53 IN A Alias will be the default.
+# By default we create a CNAME to the ALB, the moment terraform can handle CNAME to ALIAS A record changes
+# Route53 Alias A will be the default.
 # https://github.com/terraform-providers/terraform-provider-aws/issues/5280
 variable "default_load_balancing_properties_route53_record_type" {
   default = "CNAME"

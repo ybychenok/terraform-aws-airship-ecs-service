@@ -64,16 +64,12 @@ variable "route53_name" {
   default = ""
 }
 
-# Do we want to create a record in the given route53 zone
-variable "create_route53_record" {
-  default = true
-}
-
 # Small Lookup map to validate route53_record_type
 variable "allowed_record_types" {
   default = {
+    ALIAS = "ALIAS"
     CNAME = "CNAME"
-    A     = "A"
+    NONE  = "NONE"
   }
 }
 
@@ -91,5 +87,5 @@ variable "https_enabled" {
   default = true
 }
 
-# namespace, sets the namespace, currently used for the weighted IN A Alias record which needs an identifier
-variable "route53_a_record_identifier" {}
+# route53_record_identifier, sets the identifier for the route53 record in case the record type is ALIAS 
+variable "route53_record_identifier" {}
