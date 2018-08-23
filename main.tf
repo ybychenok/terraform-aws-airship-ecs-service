@@ -53,7 +53,7 @@ module "alb_handling" {
   cluster_name = "${local.cluster_name}"
 
   # Create defines if we need to create resources inside this module
-  create = "${var.create}"
+  create = "${var.create && var.load_balancing_enabled}"
 
   # lb_vpc_id sets the VPC ID of where the LB resides
   lb_vpc_id = "${lookup(var.load_balancing_properties,"lb_vpc_id", "")}"
@@ -76,14 +76,18 @@ module "alb_handling" {
   # Sets the deregistration_delay for the targetgroup
   deregistration_delay = "${lookup(var.load_balancing_properties,"deregistration_delay", var.default_load_balancing_properties_deregistration_delay)}"
 
-  # create_route53_record sets if this module creates a Route53 zone.
-  create_route53_record = "${lookup(var.load_balancing_properties,"create_route53_record", var.default_load_balancing_properties_create_route53_record)}"
+  # route53_record_type sets the record type of the route53 record, can be ALIAS, CNAME or NONE,  defaults to CNAME
+  # In case of NONE no record will be made
+  route53_record_type = "${lookup(var.load_balancing_properties,"route53_record_type", var.default_load_balancing_properties_route53_record_type)}"
 
   # Sets the zone in which the sub-domain will be added for this service
   route53_zone_id = "${lookup(var.load_balancing_properties,"route53_zone_id", "")}"
 
   # Sets name for the sub-domain, we default to *name
   route53_name = "${var.name}"
+
+  # route53_a_record_identifier sets the identifier of the weighted Alias A record
+  route53_record_identifier = "${lookup(var.load_balancing_properties,"route53_record_identifier", var.default_load_balancing_properties_route53_record_identifier)}"
 
   # the custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
   custom_listen_hosts = "${var.custom_listen_hosts}"

@@ -64,10 +64,17 @@ variable "route53_name" {
   default = ""
 }
 
-# Do we want to create a record in the given route53 zone
-variable "create_route53_record" {
-  default = true
+# Small Lookup map to validate route53_record_type
+variable "allowed_record_types" {
+  default = {
+    ALIAS = "ALIAS"
+    CNAME = "CNAME"
+    NONE  = "NONE"
+  }
 }
+
+# route53_record_type, one of the allowed values of the map allowed_record_types
+variable "route53_record_type" {}
 
 # the custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
 variable "custom_listen_hosts" {
@@ -79,3 +86,6 @@ variable "custom_listen_hosts" {
 variable "https_enabled" {
   default = true
 }
+
+# route53_record_identifier, sets the identifier for the route53 record in case the record type is ALIAS 
+variable "route53_record_identifier" {}
