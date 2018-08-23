@@ -103,7 +103,7 @@ The Role ARN of the ECS Service is exported, and can be used to add other permis
 
 module "demo_web" {
   source  = "blinkist/airship-ecs-service/aws"
-  version = "0.6.0"
+  version = "0.6.1"
 
   name   = "demo-web"
 
@@ -223,7 +223,7 @@ module "demo_web" {
 
 module "demo_web" {
   source  = "blinkist/airship-ecs-service/aws"
-  version = "0.6.0"
+  version = "0.6.1"
 
   name   = "demo-worker"
 
@@ -271,7 +271,7 @@ module "demo_web" {
 
 module "demo_web" {
   source  = "blinkist/airship-ecs-service/aws"
-  version = "0.6.0"
+  version = "0.6.1"
 
   name   = "demo5-web"
 

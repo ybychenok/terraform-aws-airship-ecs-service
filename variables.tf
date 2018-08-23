@@ -117,7 +117,7 @@ variable "default_capacity_properties_deployment_maximum_percent" {
 }
 
 variable "default_capacity_properties_deployment_minimum_healthy_percent" {
-  default = "0"
+  default = "100"
 }
 
 # container_properties is a list which can contain multiple maps with information about the containers the task definition are running.
