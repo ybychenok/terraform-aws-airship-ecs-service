@@ -20,7 +20,7 @@ locals {
   container0_name = "${lookup(var.container_properties[0], "name")}"
 
   # container0_name is the port of the first container
-  container0_port = "${lookup(var.container_properties[0], "port")}"
+  container0_port = "${lookup(var.container_properties[0], "port", "")}"
 }
 
 # environment variables set to true are converted to 0 or 1 when it comes from a null_resource. We change the string and replace it later
@@ -52,13 +52,13 @@ data "template_file" "task_definition" {
     cpu       = "${lookup(var.container_properties[count.index], "cpu")}"
     mem       = "${lookup(var.container_properties[count.index], "mem")}"
 
-    mem_reservation = "${lookup(var.container_properties[count.index], "mem_reservation","null")}"
+    mem_reservation = "${lookup(var.container_properties[count.index], "mem_reservation", "null")}"
 
     # We remove the earlier prepended variable to mitigate https://github.com/hashicorp/terraform/issues/13512
     envvars = "${replace(jsonencode(null_resource.envvars_as_list_of_maps.*.triggers), var.my_random, "")}"
 
     # We only create a  portmapping  for the first container
-    portmappings_block = "${count.index == 0 ? data.template_file.portmapping.rendered : ""}"
+    portmappings_block = "${count.index == 0 && local.container0_port != "" ? data.template_file.portmapping.rendered : ""}"
 
     container_name = "${lookup(var.container_properties[count.index], "name")}"
 
