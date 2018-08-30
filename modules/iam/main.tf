@@ -39,7 +39,7 @@ resource "aws_iam_role" "ecs_tasks_role" {
   assume_role_policy = "${data.aws_iam_policy_document.ecs_task_assume_role.json}"
 }
 
-# Policy Document to allow KMS Decryption with given KEYS
+# Policy Document to allow KMS Decryption with given keys
 data "aws_iam_policy_document" "kms_permissions" {
   count = "${var.create ? 1 : 0 }"
 
@@ -58,7 +58,7 @@ resource "aws_iam_role_policy" "kms_permissions" {
   policy = "${data.aws_iam_policy_document.kms_permissions.json}"
 }
 
-# Policy Document to allow KMS Decryption with given KEYS
+# Policy Document to allow access to SSM Parameter Store paths
 data "aws_iam_policy_document" "ssm_permissions" {
   count = "${var.create ? 1 : 0 }"
 
@@ -69,7 +69,7 @@ data "aws_iam_policy_document" "ssm_permissions" {
   }
 }
 
-# Add the ssm policy to the task role
+# Add the SSM policy to the task role
 resource "aws_iam_role_policy" "ssm_permissions" {
   count  = "${var.create ? 1 : 0 }"
   name   = "ssm-permissions"
@@ -111,7 +111,7 @@ data "aws_iam_policy_document" "s3_ro_permissions" {
   }
 }
 
-# Add the ssm policy to the task role
+# Add the S3 Read-Write policy to the task role
 resource "aws_iam_role_policy" "s3_rw_permissions" {
   name   = "s3-read-write-policy"
   count  = "${(var.create && length(var.s3_rw_paths) > 0 ) ? 1 : 0 }"
@@ -119,7 +119,7 @@ resource "aws_iam_role_policy" "s3_rw_permissions" {
   policy = "${data.aws_iam_policy_document.s3_rw_permissions.json}"
 }
 
-# Add the ssm policy to the task role
+# Add the S3 Read-Only policy to the task role
 resource "aws_iam_role_policy" "s3_ro_permissions" {
   count  = "${(var.create && length(var.s3_ro_paths) > 0 ) ? 1 : 0 }"
   name   = "s3-readonly-policy"

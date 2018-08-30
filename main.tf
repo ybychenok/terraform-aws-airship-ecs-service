@@ -33,10 +33,10 @@ module "iam" {
   # ssm_paths define which SSM paths the ecs_service can access
   ssm_paths = "${var.ssm_paths}"
 
-  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-only fashion. 
+  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-only fashion.
   s3_ro_paths = "${var.s3_ro_paths}"
 
-  # s3_ro_paths define which paths on S3 can be accessed from the ecs service in read-write fashion. 
+  # s3_rw_paths define which paths on S3 can be accessed from the ecs service in read-write fashion.
   s3_rw_paths = "${var.s3_rw_paths}"
 
   # In case Fargate is enabled an extra role needs to be added
@@ -44,7 +44,7 @@ module "iam" {
 }
 
 #
-# This sub-module creates everything regarding the connection of an ecs service to an Application Load Balancer
+# The alb-handling sub-module creates everything regarding the connection of an ecs service to an Application Load Balancer
 # 
 module "alb_handling" {
   source = "./modules/alb_handling/"
@@ -64,7 +64,7 @@ module "alb_handling" {
   # lb_listener_arn is the arn of the listener ( HTTP )
   lb_listener_arn = "${lookup(var.load_balancing_properties,"lb_listener_arn", "")}"
 
-  # lb_listener_arn is the arn of the listener ( HTTPS )
+  # lb_listener_arn_https is the arn of the listener ( HTTPS )
   lb_listener_arn_https = "${lookup(var.load_balancing_properties,"lb_listener_arn_https", "")}"
 
   # unhealthy_threshold defines the threashold for the target_group after which a service is seen as unhealthy.
@@ -89,7 +89,7 @@ module "alb_handling" {
   # route53_a_record_identifier sets the identifier of the weighted Alias A record
   route53_record_identifier = "${lookup(var.load_balancing_properties,"route53_record_identifier", var.default_load_balancing_properties_route53_record_identifier)}"
 
-  # the custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
+  # custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
   custom_listen_hosts = "${var.custom_listen_hosts}"
 
   # health_uri defines which health-check uri the target group needs to check on for health_check
@@ -107,14 +107,14 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 #
-# This sub-module creates the ECS Task definition
+# The ecs_task_definition sub-module creates the ECS Task definition
 # 
 module "ecs_task_definition" {
   source = "./modules/ecs_task_definition/"
 
   create = "${var.create}"
 
-  # The name of the task_definition ( generally, a combination of the cluster name and the service name.)
+  # The name of the task_definition (generally, a combination of the cluster name and the service name)
   name         = "${local.cluster_name}-${var.name}"
   cluster_name = "${local.cluster_name}"
 
@@ -147,7 +147,7 @@ module "ecs_task_definition" {
 }
 
 #
-# This sub-module creates the ECS Service
+# The ecs_service sub-module creates the ECS Service
 # 
 module "ecs_service" {
   source = "./modules/ecs_service/"
