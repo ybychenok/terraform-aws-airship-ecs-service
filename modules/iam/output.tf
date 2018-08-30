@@ -7,3 +7,8 @@ output "ecs_task_execution_role_arn" {
 output "ecs_taskrole_arn" {
   value = "${element(concat(aws_iam_role.ecs_tasks_role.*.arn, list("")), 0)}"
 }
+
+# ecs_taskrole_name outputs the Role-name of the ECS Task
+output "ecs_taskrole_name" {
+  value = "${element(concat(aws_iam_role.ecs_tasks_role.*.name, list("")), 0)}"
+}
