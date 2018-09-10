@@ -28,7 +28,7 @@ resource "aws_route53_record" "record_alias_a" {
   alias {
     name                   = "${data.aws_lb.main.dns_name}"
     zone_id                = "${data.aws_lb.main.zone_id}"
-    evaluate_target_health = true
+    evaluate_target_health = false
   }
 
   # When all records in a group have weight set to 0, traffic is routed to all resources with equal probability
