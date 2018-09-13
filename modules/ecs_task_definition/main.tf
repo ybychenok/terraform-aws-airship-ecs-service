@@ -15,6 +15,36 @@ data "template_file" "portmapping" {
 EOF
 }
 
+data "template_file" "mountpoint" {
+  count = "${length(var.mountpoints)}"
+
+  vars {
+    source_volume  = "${lookup(var.mountpoints[count.index], "source_volume")}"
+    container_path = "${lookup(var.mountpoints[count.index], "container_path")}"
+    read_only      = "${lookup(var.mountpoints[count.index], "read_only", "false")}"
+  }
+
+  template = <<EOF
+{
+	"sourceVolume": "$${source_volume}",
+	"containerPath": "$${container_path}",
+	"readOnly": $${read_only}
+}
+EOF
+}
+
+data "template_file" "mountpoints" {
+  vars {
+    values = "${join(",", data.template_file.mountpoint.*.rendered)}"
+  }
+
+  template = <<EOF
+"mountPoints": [
+    $${values}
+    ],
+EOF
+}
+
 locals {
   # container0_name is the name of the first container
   container0_name = "${lookup(var.container_properties[0], "name")}"
@@ -40,11 +70,11 @@ resource "null_resource" "envvars_as_list_of_maps" {
   )}"
 }
 
-data "template_file" "task_definition" {
-  # We have as much task definitions per container as given maps inside the container properties variable
+data "template_file" "container_definition" {
+  # We have as many container definitions per task as given maps inside the container properties variable
   count = "${var.create && length(var.container_properties) > 0 ? 1 : 0}"
 
-  template = "${file("${"${path.module}/task-definition.json"}")}"
+  template = "${file("${"${path.module}/container-definition.json"}")}"
 
   vars {
     image_url = "${lookup(var.container_properties[count.index], "image_url")}"
@@ -63,7 +93,8 @@ data "template_file" "task_definition" {
     container_name = "${lookup(var.container_properties[count.index], "name")}"
 
     # In non-awsvpc environments we can set the hostname
-    hostname_block = "${var.awsvpc_enabled == 0 ? "\"hostname\":\"${var.name}-${count.index}\",\n" :""}"
+    hostname_block    = "${var.awsvpc_enabled == 0 ? "\"hostname\":\"${var.name}-${count.index}\",\n" :""}"
+    mountpoints_block = "${data.template_file.mountpoints.rendered}"
 
     # Cloudwatch logging
     log_group_region = "${var.region}"
@@ -84,7 +115,12 @@ resource "aws_ecs_task_definition" "app" {
   cpu    = "${var.fargate_enabled  ? lookup(var.container_properties[0], "cpu"): "" }"
   memory = "${var.fargate_enabled  ? lookup(var.container_properties[0], "mem"): "" }"
 
-  container_definitions = "[${join(",",data.template_file.task_definition.*.rendered)}]"
+  # This is a hack: https://github.com/hashicorp/terraform/issues/14037#issuecomment-361202716
+  # This WILL break in Terraform 0.12: https://github.com/hashicorp/terraform/issues/14037#issuecomment-361358928
+  # but we need something that works before then
+  volume = "${concat(var.docker_volumes, var.host_path_volumes)}"
+
+  container_definitions = "[${join(",",data.template_file.container_definition.*.rendered)}]"
   network_mode          = "${var.awsvpc_enabled ? "awsvpc" : "bridge"}"
 
   # We need to ignore future container_definitions, and placement_constraints, as other tools take care of updating the task definition

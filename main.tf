@@ -144,6 +144,15 @@ module "ecs_task_definition" {
 
   # region, needed for Logging.. 
   region = "${local.region}"
+
+  # list of docker volumes to add to the task
+  docker_volumes = "${var.docker_volumes}"
+
+  # list of host paths to add as volumes to the task
+  host_path_volumes = "${var.host_path_volumes}"
+
+  # list of mount points to add to all containers in the task
+  mountpoints = "${var.mountpoints}"
 }
 
 #

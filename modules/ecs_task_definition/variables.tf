@@ -45,3 +45,44 @@ variable "region" {}
 
 # launch_type sets the launch_type, either EC2 or FARGATE
 variable "launch_type" {}
+
+# list of docker volumes to add to the task
+variable "docker_volumes" {
+  type    = "list"
+  default = []
+
+  # {
+  #    name = "bla",
+  #    scope == "shared",
+  #    autoprovision = true,
+  #    driver = "foo"
+  # }
+  #
+  /* NOT supported, as these are maps
+     driver_opts = N/A
+     labels = N/A
+  */
+}
+
+# list of host paths to add to the task
+variable "host_path_volumes" {
+  type    = "list"
+  default = []
+
+  # {
+  #   name = "service-storage",
+  #   host_path = "/foo"
+  # },
+}
+
+# list of mount points to add to every container in the task
+variable "mountpoints" {
+  type    = "list"
+  default = []
+
+  # {
+  #   source_volume = "service-storage"
+  #   container_path = "/foo"
+  #   read_only = "false"
+  # },
+}

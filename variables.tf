@@ -180,7 +180,7 @@ variable "default_capacity_properties_deployment_minimum_healthy_percent" {
 #     # name defines the name of the container, this is used for the AWS Logstream, and the targetgroup registration
 #     name       = "nginx"
 #   
-#     # The port of the application
+#     # port of the application (optional)
 #     port       = "80"
 #
 #     # mem_reservation defines the soft limit for the container, defaults to null
@@ -299,4 +299,44 @@ variable "s3_ro_paths" {
 # S3 Read-write paths the Task has access to
 variable "s3_rw_paths" {
   default = []
+}
+
+# list of docker volumes to add to the task
+variable "docker_volumes" {
+  type    = "list"
+  default = []
+
+  # {
+  #    name = "bla",
+  #    scope == "shared",
+  #    autoprovision = true,
+  #    driver = "foo"
+  # }
+  #
+  /* NOT supported, as these are aps
+     driver_opts = NA
+     labels = NA
+  */
+}
+
+# list of host paths to add to the task
+variable "host_path_volumes" {
+  type    = "list"
+  default = []
+
+  # {
+  #   name = "service-storage",
+  #   host_path = "/foo"
+  # },
+}
+
+variable "mountpoints" {
+  type    = "list"
+  default = []
+
+  # {
+  #   source_volume = "service-storage"
+  #   container_path = "/foo"
+  #   read_only = "false"
+  # },
 }
