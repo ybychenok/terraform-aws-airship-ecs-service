@@ -301,42 +301,43 @@ variable "s3_rw_paths" {
   default = []
 }
 
-# list of docker volumes to add to the task
-variable "docker_volumes" {
-  type    = "list"
-  default = []
+# A Docker volume to add to the task
+variable "docker_volume" {
+  type    = "map"
+  default = {}
 
   # {
-  #    name = "bla",
-  #    scope == "shared",
-  #    autoprovision = true,
-  #    driver = "foo"
+  # # these properties are supported as a 'flattened' version of the docker volume configuration:
+  # # https://www.terraform.io/docs/providers/aws/r/ecs_task_definition.html#docker_volume_configuration
+  #     name = "bla",
+  #     scope == "shared",
+  #     autoprovision = true,
+  #     driver = "foo"
+  # # these properties are NOT supported, as they are nested maps in the resource's configuration
+  # #   driver_opts = NA
+  # #   labels = NA
   # }
-  #
-  /* NOT supported, as these are aps
-     driver_opts = NA
-     labels = NA
-  */
 }
 
-# list of host paths to add to the task
+# list of host paths to add as volumes to the task
 variable "host_path_volumes" {
   type    = "list"
   default = []
 
   # {
-  #   name = "service-storage",
-  #   host_path = "/foo"
+  #     name = "service-storage",
+  #     host_path = "/foo"
   # },
 }
 
+# list of mount points to add to every container in the task
 variable "mountpoints" {
   type    = "list"
   default = []
 
   # {
-  #   source_volume = "service-storage"
-  #   container_path = "/foo"
-  #   read_only = "false"
+  #     source_volume = "service-storage",
+  #     container_path = "/foo",
+  #     read_only = "false"
   # },
 }

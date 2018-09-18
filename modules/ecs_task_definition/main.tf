@@ -116,9 +116,24 @@ resource "aws_ecs_task_definition" "app" {
   memory = "${var.fargate_enabled  ? lookup(var.container_properties[0], "mem"): "" }"
 
   # This is a hack: https://github.com/hashicorp/terraform/issues/14037#issuecomment-361202716
+  # Specifically, we are assigning a list of maps to the `volume` block to
+  # mimic multiple `volume` statements
   # This WILL break in Terraform 0.12: https://github.com/hashicorp/terraform/issues/14037#issuecomment-361358928
   # but we need something that works before then
-  volume = "${concat(var.docker_volumes, var.host_path_volumes)}"
+  volume = ["${var.host_path_volumes}"]
+
+  # Unfortunately, our hack doesn't work for Docker volume blocks because they
+  # include a nested map; therefore the only way to currently sanely support
+  # Docker volume blocks is to only consider the single volume case.
+  volume = {
+    name = "${lookup(var.docker_volume, "name") != "" ? lookup(var.docker_volume, "name") : ""}"
+
+    docker_volume_configuration {
+      autoprovision = "${lookup(var.docker_volume, "autoprovision") != "" ? lookup(var.docker_volume, "autoprovision") : ""}"
+      scope         = "${lookup(var.docker_volume, "scope") != "" ? lookup(var.docker_volume, "scope") : ""}"
+      driver        = "${lookup(var.docker_volume, "driver") != "" ? lookup(var.docker_volume, "driver") : ""}"
+    }
+  }
 
   container_definitions = "[${join(",",data.template_file.container_definition.*.rendered)}]"
   network_mode          = "${var.awsvpc_enabled ? "awsvpc" : "bridge"}"

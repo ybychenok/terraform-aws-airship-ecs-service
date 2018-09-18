@@ -46,32 +46,32 @@ variable "region" {}
 # launch_type sets the launch_type, either EC2 or FARGATE
 variable "launch_type" {}
 
-# list of docker volumes to add to the task
-variable "docker_volumes" {
-  type    = "list"
-  default = []
+# A Docker volume to add to the task
+variable "docker_volume" {
+  type    = "map"
+  default = {}
 
   # {
-  #    name = "bla",
-  #    scope == "shared",
-  #    autoprovision = true,
-  #    driver = "foo"
+  # # these properties are supported as a 'flattened' version of the docker volume configuration:
+  # # https://www.terraform.io/docs/providers/aws/r/ecs_task_definition.html#docker_volume_configuration
+  #     name = "bla",
+  #     scope == "shared",
+  #     autoprovision = true,
+  #     driver = "foo"
+  # # these properties are NOT supported, as they are nested maps in the resource's configuration
+  # #   driver_opts = NA
+  # #   labels = NA
   # }
-  #
-  /* NOT supported, as these are maps
-     driver_opts = N/A
-     labels = N/A
-  */
 }
 
-# list of host paths to add to the task
+# list of host paths to add as volumes to the task
 variable "host_path_volumes" {
   type    = "list"
   default = []
 
   # {
-  #   name = "service-storage",
-  #   host_path = "/foo"
+  #     name = "service-storage",
+  #     host_path = "/foo"
   # },
 }
 
@@ -81,8 +81,8 @@ variable "mountpoints" {
   default = []
 
   # {
-  #   source_volume = "service-storage"
-  #   container_path = "/foo"
-  #   read_only = "false"
+  #     source_volume = "service-storage",
+  #     container_path = "/foo",
+  #     read_only = "false"
   # },
 }
