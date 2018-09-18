@@ -1,4 +1,7 @@
-# H/T Cloudposse https://github.com/cloudposse/terraform-aws-ecs-container-definition
+#
+# This code was adapted from the `terraform-aws-ecs-container-definition` module from Cloud Posse, LLC on 2018-09-18.
+# Available here: https://github.com/cloudposse/terraform-aws-ecs-container-definition
+#
 
 locals {
   container_definitions = [{

@@ -1,3 +1,8 @@
+#
+# This code was adapted from the `terraform-aws-ecs-container-definition` module from Cloud Posse, LLC on 2018-09-18.
+# Available here: https://github.com/cloudposse/terraform-aws-ecs-container-definition
+#
+
 variable "container_name" {
   description = "The name of the container. Up to 255 characters ([a-z], [A-Z], [0-9], -, _ allowed)."
 }
