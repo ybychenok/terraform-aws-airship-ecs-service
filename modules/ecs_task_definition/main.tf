@@ -126,12 +126,12 @@ resource "aws_ecs_task_definition" "app" {
   # include a nested map; therefore the only way to currently sanely support
   # Docker volume blocks is to only consider the single volume case.
   volume = {
-    name = "${lookup(var.docker_volume, "name") != "" ? lookup(var.docker_volume, "name") : ""}"
+    name = "${lookup(var.docker_volume, "name", "")}"
 
     docker_volume_configuration {
-      autoprovision = "${lookup(var.docker_volume, "autoprovision") != "" ? lookup(var.docker_volume, "autoprovision") : ""}"
-      scope         = "${lookup(var.docker_volume, "scope") != "" ? lookup(var.docker_volume, "scope") : ""}"
-      driver        = "${lookup(var.docker_volume, "driver") != "" ? lookup(var.docker_volume, "driver") : ""}"
+      autoprovision = "${lookup(var.docker_volume, "autoprovision", "")}"
+      scope         = "${lookup(var.docker_volume, "scope", "")}"
+      driver        = "${lookup(var.docker_volume, "driver", "")}"
     }
   }
 
