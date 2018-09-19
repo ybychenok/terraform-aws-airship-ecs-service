@@ -271,9 +271,21 @@ variable "name" {
   description = "The name of the project, must be unique ."
 }
 
+# Whether to provide access to the supplied kms_keys. If no kms keys are
+# passed, set this to false.
+variable "kms_enabled" {
+  default = true
+}
+
 # List of KMS keys the task has access to
 variable "kms_keys" {
   default = []
+}
+
+# Whether to provide access to the supplied ssm_paths. If no ssm paths are
+# passed, set this to false.
+variable "ssm_enabled" {
+  default = true
 }
 
 # List of SSM Paths the task has access to
