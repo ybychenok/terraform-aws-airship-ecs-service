@@ -51,6 +51,8 @@ locals {
 
   # container0_name is the port of the first container
   container0_port = "${lookup(var.container_properties[0], "port", "")}"
+
+  docker_volume_name = "${lookup(var.docker_volume, "name", "")}"
 }
 
 # environment variables set to true are converted to 0 or 1 when it comes from a null_resource. We change the string and replace it later
@@ -104,7 +106,7 @@ data "template_file" "container_definition" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  count = "${var.create ? 1 : 0 }"
+  count = "${(var.create && (local.docker_volume_name == "")) ? 1 : 0 }"
 
   family        = "${var.name}"
   task_role_arn = "${var.ecs_taskrole_arn}"
@@ -122,15 +124,46 @@ resource "aws_ecs_task_definition" "app" {
   # but we need something that works before then
   volume = ["${var.host_path_volumes}"]
 
-  # Unfortunately, our hack doesn't work for Docker volume blocks because they
-  # include a nested map; therefore the only way to currently sanely support
-  # Docker volume blocks is to only consider the single volume case.
+  container_definitions = "[${join(",",data.template_file.container_definition.*.rendered)}]"
+  network_mode          = "${var.awsvpc_enabled ? "awsvpc" : "bridge"}"
+
+  # We need to ignore future container_definitions, and placement_constraints, as other tools take care of updating the task definition
+  lifecycle {
+    ignore_changes = ["container_definitions", "placement_constraints"]
+  }
+
+  requires_compatibilities = ["${var.launch_type}"]
+}
+
+resource "aws_ecs_task_definition" "app_with_docker_volume" {
+  count = "${(var.create && (local.docker_volume_name != "")) ? 1 : 0 }"
+
+  family        = "${var.name}"
+  task_role_arn = "${var.ecs_taskrole_arn}"
+
+  # Execution role ARN can be needed inside FARGATE
+  execution_role_arn = "${var.ecs_task_execution_role_arn}"
+
+  cpu    = "${var.fargate_enabled  ? lookup(var.container_properties[0], "cpu"): "" }"
+  memory = "${var.fargate_enabled  ? lookup(var.container_properties[0], "mem"): "" }"
+
+  # This is a hack: https://github.com/hashicorp/terraform/issues/14037#issuecomment-361202716
+  # Specifically, we are assigning a list of maps to the `volume` block to
+  # mimic multiple `volume` statements
+  # This WILL break in Terraform 0.12: https://github.com/hashicorp/terraform/issues/14037#issuecomment-361358928
+  # but we need something that works before then
+  volume = ["${var.host_path_volumes}"]
+
+  # Unfortunately, the same hack doesn't work for a list of Docker volume
+  # blocks because they include a nested map; therefore the only way to
+  # currently sanely support Docker volume blocks is to only consider the
+  # single volume case.
   volume = {
-    name = "${lookup(var.docker_volume, "name", "")}"
+    name = "${local.docker_volume_name}"
 
     docker_volume_configuration {
-      autoprovision = "${lookup(var.docker_volume, "autoprovision", "")}"
-      scope         = "${lookup(var.docker_volume, "scope", "")}"
+      autoprovision = "${lookup(var.docker_volume, "autoprovision", false)}"
+      scope         = "${lookup(var.docker_volume, "scope", "shared")}"
       driver        = "${lookup(var.docker_volume, "driver", "")}"
     }
   }
