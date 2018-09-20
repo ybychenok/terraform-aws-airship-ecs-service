@@ -27,8 +27,16 @@ module "iam" {
   # Region is used multiple times inside this module, we pass this through so that we don't need multiple datasources
   region = "${local.region}"
 
+  # kms_enabled sets whether this ecs_service should be able to access the given KMS keys.
+  # Defaults to true; if no kms_paths are given, set this to false.
+  kms_enabled = "${var.kms_enabled}"
+
   # kms_keys define which KMS keys this ecs_service can access.
   kms_keys = "${var.kms_keys}"
+
+  # ssm_enabled sets whether this ecs_service should be able to access the given SSM paths.
+  # Defaults to true; if no ssm_paths are given, set this to false.
+  ssm_enabled = "${var.ssm_enabled}"
 
   # ssm_paths define which SSM paths the ecs_service can access
   ssm_paths = "${var.ssm_paths}"
@@ -144,6 +152,15 @@ module "ecs_task_definition" {
 
   # region, needed for Logging.. 
   region = "${local.region}"
+
+  # a Docker volume to add to the task
+  docker_volume = "${var.docker_volume}"
+
+  # list of host paths to add as volumes to the task
+  host_path_volumes = "${var.host_path_volumes}"
+
+  # list of mount points to add to all containers in the task
+  mountpoints = "${var.mountpoints}"
 }
 
 #
