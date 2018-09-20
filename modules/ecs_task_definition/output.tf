@@ -10,5 +10,5 @@ output "container0_port" {
 
 # The arn of the task definition
 output "aws_ecs_task_definition_arn" {
-  value = "${element(concat(aws_ecs_task_definition.app.*.arn, list("")), 0)}"
+  value = "${element(concat(aws_ecs_task_definition.app.*.arn, aws_ecs_task_definition.app_with_docker_volume.*.arn), 0)}"
 }
