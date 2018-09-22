@@ -122,7 +122,7 @@ module "container_definition" {
 
   hostname = "${var.awsvpc_enabled == 1 ? "" : var.name}"
 
-  container_envvars = ["${var.container_envvars}"]
+  container_envvars = "${var.container_envvars}"
 
   mountpoints = ["${var.mountpoints}"]
 

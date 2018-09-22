@@ -87,15 +87,11 @@ The Role ARN of the ECS Service is exported, and can be used to add other permis
 * [x] Exports role arn for adding permissions 
 * [x] Deregistration delay parameter allows for fast deployments
 * [x] The scheduling_strategy DAEMON/REPLICA can be set 
-* [ ] Terratest..
+* [x] Adding of Volumes / Mountpoints in case Docker Volume Drivers are used.
 * [ ] ECS Service discovery
 * [ ] Path based ALB Rules 
 * [ ] SSL SNI Adding for custom hostnames
 * [ ] Integrated IAM Permissions for *
-
-## Will not feature
-* [ ] mounting EFS mounts within ECS Task, in theory possible, but stateful workloads should not be on ECS anyway
-
 
 ## Simple ECS Service on Fargate with ALB Attached, together with a simple non ALB attached worker
 
@@ -107,7 +103,10 @@ module "demo_web" {
 
   name   = "demo-web"
 
-  ecs_cluster_name = "${local.cluster_name}"
+  ecs_cluster_id = "${local.cluster_id}"
+
+  region = "${local.region}"
+
   fargate_enabled = true
 
   # scheduling_strategy = "REPLICA"
@@ -153,16 +152,10 @@ module "demo_web" {
   # custom_listen_hosts defines extra listener rules to route to the ALB Targetgroup
   custom_listen_hosts    = ["www.example.com"]
 
-  container_properties = [
-    {
-      image_url  = "nginx:latest"
-      name       = "nginx"
-      port       = "80"
-      mem        = "512"
-      # mem_reservation = "null"
-      cpu        = "256"
-    },
-  ]
+  container_cpu    = 256
+  container_memory = 512
+  container_port   = 80
+  container_image  = "nginx:latest"
 
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {
@@ -227,7 +220,9 @@ module "demo_web" {
 
   name   = "demo-worker"
 
-  ecs_cluster_name = "${local.cluster_name}"
+  region         = "eu-central-1"
+
+  ecs_cluster_id = "${module.ecs.cluster_id}"
 
   fargate_enabled = true
   awsvpc_enabled = true
@@ -238,16 +233,10 @@ module "demo_web" {
   awsvpc_subnets            = ["${module.vpc.private_subnets}"]
   awsvpc_security_group_ids = ["${module.demo_sg.this_security_group_id}"]
 
-  container_properties = [
-    {
-      image_url  = "nginx:latest"
-      name       = "nginx"
-      port       = "80"
-      mem        = "512"
-      # mem_reservation = "null"
-      cpu        = "256"
-    },
-  ]
+  container_cpu    = 256
+  container_memory = 512
+  container_port   = 80
+  container_image  = "nginx:latest"
 
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {
@@ -275,7 +264,9 @@ module "demo_web" {
 
   name   = "demo5-web"
 
-  ecs_cluster_name = "${local.cluster_name}"
+  ecs_cluster_id = "${local.cluster_id}"
+
+  region         = "eu-central-1"
 
   # scheduling_strategy = "REPLICA""""
 
@@ -292,18 +283,13 @@ module "demo_web" {
     lb_vpc_id             = "${module.vpc.vpc_id}"
     route53_zone_id       = "${aws_route53_zone.shared_ext_services_domain.zone_id}"
     unhealthy_threshold   = "3"
+    health_uri = "/ping"
   }
 
-  container_properties = [
-    {
-      image_url  = "nginx:latest"
-      name       = "nginx"
-      port       = "80"
-      health_uri = "/ping"
-      mem        = "512"
-      cpu        = "256"
-    },
-  ]
+  container_cpu    = 256
+  container_memory = 512
+  container_port   = 80
+  container_image  = "nginx:latest"
 
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {
@@ -323,7 +309,6 @@ module "demo_web" {
 
   # The SSM paths which are allowed to do kms:GetParameter and ssm:GetParametersByPath for
   ssm_paths = ["${module.global-kms.name}", "${module.demo-kms.name}"]
-
 }
 
 ```
