@@ -4,6 +4,20 @@
 #
 
 locals {
+  # null_resource turns "true" into true, adding a temporary string will fix that problem
+  safe_search_replace_string = "random460d168ecd774089a8f31b6dfde9285b"
+}
+
+resource "null_resource" "envvars_as_list_of_maps" {
+  count = "${length(keys(var.container_envvars))}"
+
+  triggers = "${map(
+    "name", "${local.safe_search_replace_string}${element(keys(var.container_envvars), count.index)}",
+    "value", "${local.safe_search_replace_string}${element(values(var.container_envvars), count.index)}",
+  )}"
+}
+
+locals {
   container_definitions = [{
     name                   = "${var.container_name}"
     image                  = "${var.container_image}"
@@ -18,7 +32,7 @@ locals {
 
     hostName = "${var.hostname}"
 
-    environment = "${var.environment}"
+    environment = ["${null_resource.envvars_as_list_of_maps.*.triggers}"]
 
     mountPoints = ["${var.mountpoints}"]
 

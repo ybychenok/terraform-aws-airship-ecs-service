@@ -1,15 +1,6 @@
-data "aws_region" "current" {}
-
-data "aws_ecs_cluster" "this" {
-  cluster_name = "${local.cluster_name}"
-}
-
 locals {
-  cluster_id   = "${data.aws_ecs_cluster.this.arn}"
-  cluster_name = "${var.ecs_cluster_name}"
-  region       = "${data.aws_region.current.name}"
-
-  launch_type = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
+  ecs_cluster_name = "${element(split("/",var.ecs_cluster_id),3)}"
+  launch_type      = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
 }
 
 #
@@ -19,13 +10,13 @@ module "iam" {
   source = "./modules/iam/"
 
   # Name
-  name = "${local.cluster_name}-${var.name}"
+  name = "${local.ecs_cluster_name}-${var.name}"
 
   # Create defines if any resources need to be created inside the module
   create = "${var.create}"
 
-  # Region is used multiple times inside this module, we pass this through so that we don't need multiple datasources
-  region = "${local.region}"
+  # Region ..
+  region = "${var.region}"
 
   # kms_enabled sets whether this ecs_service should be able to access the given KMS keys.
   # Defaults to true; if no kms_paths are given, set this to false.
@@ -58,7 +49,7 @@ module "alb_handling" {
   source = "./modules/alb_handling/"
 
   name         = "${var.name}"
-  cluster_name = "${local.cluster_name}"
+  cluster_name = "${local.ecs_cluster_name}"
 
   # Create defines if we need to create resources inside this module
   create = "${var.create && var.load_balancing_enabled}"
@@ -110,8 +101,36 @@ module "alb_handling" {
 ###### CloudWatch Logs
 resource "aws_cloudwatch_log_group" "app" {
   count             = "${var.create ? 1 : 0}"
-  name              = "${local.cluster_name}/${var.name}"
+  name              = "${local.ecs_cluster_name}/${var.name}"
   retention_in_days = 14
+}
+
+#
+# Container_definition
+#
+module "container_definition" {
+  source          = "./modules/ecs_container_definition/"
+  container_name  = "${var.name}"
+  container_image = "${var.container_image}"
+
+  container_cpu                = "${var.container_cpu}"
+  container_memory             = "${var.container_memory}"
+  container_memory_reservation = "${var.container_memory_reservation}"
+
+  container_port = "${var.container_port}"
+  host_port      = "${var.awsvpc_enabled ? var.container_port : var.host_port }"
+
+  hostname = "${var.awsvpc_enabled == 1 ? "" : var.name}"
+
+  container_envvars = ["${var.container_envvars}"]
+
+  mountpoints = ["${var.mountpoints}"]
+
+  log_options = {
+    "awslogs-region"        = "${var.region}"
+    "awslogs-group"         = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
+    "awslogs-stream-prefix" = "${var.name}"
+  }
 }
 
 #
@@ -123,11 +142,11 @@ module "ecs_task_definition" {
   create = "${var.create}"
 
   # The name of the task_definition (generally, a combination of the cluster name and the service name)
-  name         = "${local.cluster_name}-${var.name}"
-  cluster_name = "${local.cluster_name}"
+  name = "${local.ecs_cluster_name}-${var.name}"
 
-  # container_properties defines a list of maps of container_properties
-  container_properties = "${var.container_properties}"
+  cluster_name = "${local.ecs_cluster_name}"
+
+  container_definitions = "${module.container_definition.json}"
 
   # awsvpc_enabled sets if the ecs task definition is awsvpc 
   awsvpc_enabled = "${var.awsvpc_enabled}"
@@ -135,11 +154,11 @@ module "ecs_task_definition" {
   # fargate_enabled sets if the ecs task definition has launch_type FARGATE
   fargate_enabled = "${var.fargate_enabled}"
 
-  # cloudwatch_loggroup_name sets the loggroup name of the cloudwatch loggroup made for this service.
-  cloudwatch_loggroup_name = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
+  # Sets the task cpu needed for fargate when enabled
+  cpu = "${var.fargate_enabled ? var.container_cpu : "" }"
 
-  # container_envvars defines a map with key-val pairs of environment variables needed for the ecs task definition.
-  container_envvars = "${var.container_envvars}"
+  # Sets the task memory needed for fargate when enabled
+  memory = "${var.fargate_enabled ? var.container_memory : "" }"
 
   # ecs_taskrole_arn sets the IAM role of the task.
   ecs_taskrole_arn = "${module.iam.ecs_taskrole_arn}"
@@ -151,16 +170,13 @@ module "ecs_task_definition" {
   launch_type = "${local.launch_type}"
 
   # region, needed for Logging.. 
-  region = "${local.region}"
+  region = "${var.region}"
 
   # a Docker volume to add to the task
   docker_volume = "${var.docker_volume}"
 
   # list of host paths to add as volumes to the task
   host_path_volumes = "${var.host_path_volumes}"
-
-  # list of mount points to add to all containers in the task
-  mountpoints = "${var.mountpoints}"
 }
 
 #
@@ -174,7 +190,7 @@ module "ecs_service" {
   # create defines if resources are being created inside this module
   create = "${var.create}"
 
-  cluster_id = "${local.cluster_id}"
+  cluster_id = "${var.ecs_cluster_id}"
 
   # ecs_task_definition_arn is the arn of the task definition, created by the ecs_task_definition module 
   ecs_task_definition_arn = "${module.ecs_task_definition.aws_ecs_task_definition_arn}"
@@ -210,9 +226,9 @@ module "ecs_service" {
 
   # container_name sets the name of the container, this is used for the load balancer section inside the ecs_service to connect to a container_name defined inside the 
   # task definition, container_port sets the port for the same container.
-  container_name = "${module.ecs_task_definition.container0_name}"
+  container_name = "${var.name}"
 
-  container_port = "${module.ecs_task_definition.container0_port}"
+  container_port = "${var.container_port}"
 
   # This way we force the aws_lb_listener_rule to have finished before creating the ecs_service
   aws_lb_listener_rules = "${module.alb_handling.aws_lb_listener_rules}"
@@ -227,7 +243,7 @@ module "ecs_autoscaling" {
   # create defines if resources inside this module are being created.
   create = "${var.create && length(var.scaling_properties) > 0 ? true : false }"
 
-  cluster_name = "${local.cluster_name}"
+  cluster_name = "${local.ecs_cluster_name}"
 
   # ecs_service_name is derived from the actual ecs_service, this to force dependency at creation.
   ecs_service_name = "${module.ecs_service.ecs_service_name}"

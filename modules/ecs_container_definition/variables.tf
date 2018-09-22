@@ -66,9 +66,9 @@ variable "working_directory" {
   default     = ""
 }
 
-variable "environment" {
-  description = "The environment variables to pas to the container. This is a list of maps."
-  default     = []
+variable "container_envvars" {
+  description = "The environment variables to pas to the container. This is a map"
+  default     = {}
 }
 
 variable "readonly_root_filesystem" {
@@ -91,6 +91,11 @@ variable "mountpoints" {
   #   container_path = "/foo"
   #   read_only = "false"
   # },
+}
+
+variable "hostname" {
+  description = "The optional hostname for the container, not allowed to use with Fargate"
+  default     = ""
 }
 
 variable "log_options" {

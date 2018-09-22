@@ -9,11 +9,6 @@ variable "create" {
 # cluster name
 variable "cluster_name" {}
 
-# List of maps with container properties
-variable "container_properties" {
-  type = "list"
-}
-
 # is awsvpc enabled ?
 variable "awsvpc_enabled" {
   default = false
@@ -24,15 +19,16 @@ variable "fargate_enabled" {
   default = false
 }
 
-# cloudwatch_loggroup_name sets the cloudwatch loggroup name
-variable "cloudwatch_loggroup_name" {
-  default = ""
-}
+# container_definitions set the json with the container definitions
+variable "container_definitions" {}
 
-#  extra set of environment variables for the ecs task
-variable "container_envvars" {
-  default = {}
-}
+# cpu is set in case Fargate is used
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
+variable "cpu" {}
+
+# memory is set in case Fargate is used
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
+variable "memory" {}
 
 # ecs_taskrole_arn sets the arn of the ECS Task role
 variable "ecs_taskrole_arn" {}
