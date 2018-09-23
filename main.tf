@@ -106,12 +106,25 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 #
+# This module is used to lookup the currently used ecs task definition
+#
+module "live_task_lookup" {
+  source           = "./modules/live_task_lookup/"
+  create           = "${ var.create && var.container_image == ""}"
+  ecs_cluster_id   = "${var.ecs_cluster_id}"
+  ecs_service_name = "${var.name}"
+  container_name   = "${var.name}"
+}
+
+#
 # Container_definition
 #
 module "container_definition" {
-  source          = "./modules/ecs_container_definition/"
-  container_name  = "${var.name}"
-  container_image = "${var.container_image}"
+  source         = "./modules/ecs_container_definition/"
+  container_name = "${var.name}"
+
+  # If no container_image is given, we take the current one from live_task_lookup
+  container_image = "${var.container_image == "" ? module.live_task_lookup.image: var.container_image}"
 
   container_cpu                = "${var.container_cpu}"
   container_memory             = "${var.container_memory}"
@@ -180,6 +193,28 @@ module "ecs_task_definition" {
 }
 
 #
+# The ecs_task_definition_selector filters ... In most cases new task definitions get created which are
+# a copy of the live task definitions. ecs_task_definition_selector checks if there is a difference
+# if there isn't a difference then the current live one should be used to be deployed; this
+# way no actual deployment will happen.
+module "ecs_task_definition_selector" {
+  source             = "./modules/ecs_task_definition_selector/"
+  ecs_container_name = "${var.name}"
+
+  # Terraform state task definition
+  aws_ecs_task_definition_family   = "${module.ecs_task_definition.aws_ecs_task_definition_family}"
+  aws_ecs_task_definition_revision = "${module.ecs_task_definition.aws_ecs_task_definition_revision}"
+
+  # Live ecs task definition
+  live_aws_ecs_task_definition_revision           = "${module.live_task_lookup.revision}"
+  live_aws_ecs_task_definition_image              = "${module.live_task_lookup.image}"
+  live_aws_ecs_task_definition_cpu                = "${module.live_task_lookup.cpu}"
+  live_aws_ecs_task_definition_memory             = "${module.live_task_lookup.memory}"
+  live_aws_ecs_task_definition_memory_reservation = "${module.live_task_lookup.memory_reservation}"
+  live_aws_ecs_task_definition_environment_json   = "${module.live_task_lookup.environment_json}"
+}
+
+#
 # The ecs_service sub-module creates the ECS Service
 # 
 module "ecs_service" {
@@ -192,11 +227,10 @@ module "ecs_service" {
 
   cluster_id = "${var.ecs_cluster_id}"
 
-  # ecs_task_definition_arn is the arn of the task definition, created by the ecs_task_definition module 
-  ecs_task_definition_arn = "${module.ecs_task_definition.aws_ecs_task_definition_arn}"
-
   # launch_type either EC2 or FARGATE
   launch_type = "${local.launch_type}"
+
+  selected_task_definition = "${module.ecs_task_definition_selector.selected_task_definition_for_deployment}"
 
   # deployment_maximum_percent sets the maximum size of the deployment in % of the normal size.
   deployment_maximum_percent = "${lookup(var.capacity_properties,"deployment_maximum_percent", var.default_capacity_properties_deployment_maximum_percent)}"
