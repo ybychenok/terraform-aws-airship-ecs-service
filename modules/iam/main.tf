@@ -34,7 +34,7 @@ resource "aws_iam_role_policy_attachment" "ecs_tasks_execution_role" {
 
 # The actual ECS TASK ROLE
 resource "aws_iam_role" "ecs_tasks_role" {
-  count              = "${var.create}"
+  count              = "${var.create ? 1 : 0 }"
   name               = "${var.name}-task-role"
   assume_role_policy = "${data.aws_iam_policy_document.ecs_task_assume_role.json}"
 }
