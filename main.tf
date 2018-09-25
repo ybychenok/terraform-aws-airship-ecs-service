@@ -154,11 +154,11 @@ module "ecs_task_definition" {
   # fargate_enabled sets if the ecs task definition has launch_type FARGATE
   fargate_enabled = "${var.fargate_enabled}"
 
-  # Sets the task cpu needed for fargate when enabled
-  cpu = "${var.fargate_enabled ? var.container_cpu : "" }"
+  # Sets the task cpu which is mandatory for Fargate, option for EC2
+  cpu = "${var.container_cpu}"
 
-  # Sets the task memory needed for fargate when enabled
-  memory = "${var.fargate_enabled ? var.container_memory : "" }"
+  # Sets the task memory which is mandatory for Fargate, option for EC2
+  memory = "${var.container_memory}"
 
   # ecs_taskrole_arn sets the IAM role of the task.
   ecs_taskrole_arn = "${module.iam.ecs_taskrole_arn}"
