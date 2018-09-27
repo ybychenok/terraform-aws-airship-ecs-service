@@ -5,7 +5,7 @@
 
 locals {
   # null_resource turns "true" into true, adding a temporary string will fix that problem
-  safe_search_replace_string = "random460d168ecd774089a8f31b6dfde9285b"
+  safe_search_replace_string = "#keep_true_a_string_hack#"
 }
 
 resource "null_resource" "envvars_as_list_of_maps" {
