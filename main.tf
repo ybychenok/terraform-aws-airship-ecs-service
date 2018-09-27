@@ -110,7 +110,7 @@ resource "aws_cloudwatch_log_group" "app" {
 #
 module "container_definition" {
   source          = "./modules/ecs_container_definition/"
-  container_name  = "${var.name}"
+  container_name  = "${var.container_name}"
   container_image = "${var.container_image}"
 
   container_cpu                = "${var.container_cpu}"
@@ -226,7 +226,7 @@ module "ecs_service" {
 
   # container_name sets the name of the container, this is used for the load balancer section inside the ecs_service to connect to a container_name defined inside the 
   # task definition, container_port sets the port for the same container.
-  container_name = "${var.name}"
+  container_name = "${var.container_name}"
 
   container_port = "${var.container_port}"
 

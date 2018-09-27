@@ -176,6 +176,11 @@ variable "default_capacity_properties_deployment_minimum_healthy_percent" {
 # image_url defines the docker image location
 variable "container_image" {}
 
+# Container name 
+variable "container_name" {
+  default = "app"
+}
+
 # cpu defines the needed cpu for the container
 variable "container_cpu" {}
 
