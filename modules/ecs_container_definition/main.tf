@@ -30,7 +30,7 @@ locals {
     workingDirectory       = "${var.working_directory}"
     readonlyRootFilesystem = "${var.readonly_root_filesystem}"
 
-    hostName = "${var.hostname}"
+    hostname = "${var.hostname}"
 
     environment = ["${null_resource.envvars_as_list_of_maps.*.triggers}"]
 
