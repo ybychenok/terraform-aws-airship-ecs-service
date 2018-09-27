@@ -5,8 +5,11 @@ variable "create" {
   default = true
 }
 
-# The ECS Cluster name
-variable "ecs_cluster_name" {}
+# ecs_cluster_id is the cluster to which the ECS Service will be added.
+variable "ecs_cluster_id" {}
+
+# Region of the ECS Cluster
+variable "region" {}
 
 # With fargate_enabled the launchtype of the service will be FARGATE, otherwise EC2 ( default is false)
 variable "fargate_enabled" {
@@ -170,55 +173,32 @@ variable "default_capacity_properties_deployment_minimum_healthy_percent" {
   default = "100"
 }
 
-# container_properties is a list which can contain multiple maps with information about the containers the task definition are running.
-# as AWS Fargate and docker are not supporting linking anymore this feature is not supported. Running multiple containers in one 
-# Task however is possible. For Networking the properties of the first container are used.
-# [{
-#     # image_url defines the docker image url
-#     image_url  = "nginx:latest"
-#
-#     # name defines the name of the container, this is used for the AWS Logstream, and the targetgroup registration
-#     name       = "nginx"
-#   
-#     # port of the application (optional)
-#     port       = "80"
-#
-#     # mem_reservation defines the soft limit for the container, defaults to null
-#     mem_reservation  = "null"
-#
-#     # memory defines the needed memory for the container
-#     mem        = "512"
-#
-#     # cpu defines the needed cpu for the container
-#     cpu        = "256"
-#  }]
+# image_url defines the docker image location
+variable "container_image" {}
 
-variable "container_properties" {
-  type = "list"
-}
-
-variable "default_container_properties_image_url" {
-  default = ""
-}
-
-variable "default_container_properties_name" {
+# Container name 
+variable "container_name" {
   default = "app"
 }
 
-variable "default_container_properties_port" {
+# cpu defines the needed cpu for the container
+variable "container_cpu" {}
+
+# container_memory  defines the hard memory limit of the container
+variable "container_memory" {}
+
+# container_memory_reservation defines the ECS Memory reservation for this service and Soft/limit
+variable "container_memory_reservation" {
   default = ""
 }
 
-variable "default_container_properties_mem_reservation" {
+# port defines the needed port of the container
+variable "container_port" {
   default = ""
 }
 
-variable "default_container_properties_mem" {
-  default = "512"
-}
-
-variable "default_container_properties_cpu" {
-  default = "256"
+variable "host_port" {
+  default = ""
 }
 
 # Scaling properties holds a map of multiple maps defining scaling policies and alarms
