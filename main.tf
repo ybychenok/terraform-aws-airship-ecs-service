@@ -113,7 +113,7 @@ module "live_task_lookup" {
   create           = "${ var.create && var.container_image == ""}"
   ecs_cluster_id   = "${var.ecs_cluster_id}"
   ecs_service_name = "${var.name}"
-  container_name   = "${var.name}"
+  container_name   = "${var.container_name}"
 }
 
 #
@@ -121,7 +121,7 @@ module "live_task_lookup" {
 #
 module "container_definition" {
   source         = "./modules/ecs_container_definition/"
-  container_name = "${var.name}"
+  container_name = "${var.container_name}"
 
   # If no container_image is given, we take the current one from live_task_lookup
   container_image = "${var.container_image == "" ? module.live_task_lookup.image: var.container_image}"
@@ -170,7 +170,7 @@ module "ecs_task_definition" {
   # Sets the task cpu needed for fargate when enabled
   cpu = "${var.fargate_enabled ? var.container_cpu : "" }"
 
-  # Sets the task memory needed for fargate when enabled
+  # Sets the task memory which is mandatory for Fargate, option for EC2
   memory = "${var.fargate_enabled ? var.container_memory : "" }"
 
   # ecs_taskrole_arn sets the IAM role of the task.
@@ -199,7 +199,7 @@ module "ecs_task_definition" {
 # way no actual deployment will happen.
 module "ecs_task_definition_selector" {
   source             = "./modules/ecs_task_definition_selector/"
-  ecs_container_name = "${var.name}"
+  ecs_container_name = "${var.container_name}"
 
   # Terraform state task definition
   aws_ecs_task_definition_family   = "${module.ecs_task_definition.aws_ecs_task_definition_family}"
@@ -260,7 +260,7 @@ module "ecs_service" {
 
   # container_name sets the name of the container, this is used for the load balancer section inside the ecs_service to connect to a container_name defined inside the 
   # task definition, container_port sets the port for the same container.
-  container_name = "${var.name}"
+  container_name = "${var.container_name}"
 
   container_port = "${var.container_port}"
 
