@@ -97,8 +97,7 @@ variable "load_balancing_properties" {
 
     cognito_user_pool_domain sets the domain of the cognito_user_pool
     cognito_user_pool_domain = ""
-
-    /
+    */
   }
 }
 
