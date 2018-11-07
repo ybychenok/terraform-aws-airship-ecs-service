@@ -1,4 +1,4 @@
-# AWS ECS Service Terraform Module [![Build Status](https://travis-ci.org/blinkist/terraform-aws-airship-ecs-service.svg?branch=master)](https://travis-ci.org/blinkist/terraform-aws-airship-ecs-service)
+# AWS ECS Service Terraform Module [![Build Status](https://travis-ci.org/blinkist/terraform-aws-airship-ecs-service.svg?branch=master)](https://travis-ci.org/blinkist/terraform-aws-airship-ecs-service) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
 
 ![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/airship.png)
 
