@@ -194,7 +194,7 @@ resource "aws_lb_listener_rule" "host_based_routing_custom_listen_host" {
 }
 
 ##
-## aws_lb_listener_rule which redirects http to https for the customer listen hosts
+## aws_lb_listener_rule which redirects http to https for the custom listen hosts
 resource "aws_lb_listener_rule" "host_based_routing_custom_listen_host_redirect_to_https" {
   count = "${var.create && var.redirect_http_to_https ? length(var.custom_listen_hosts) : 0 }"
 
