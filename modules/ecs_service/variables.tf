@@ -11,11 +11,10 @@ variable "create" {
   default = true
 }
 
+variable "selected_task_definition" {}
+
 # The cluster ID
 variable "cluster_id" {}
-
-# The ECS Task definition ARN
-variable "ecs_task_definition_arn" {}
 
 # The launch type, either FARGATE or EC2
 variable "launch_type" {}

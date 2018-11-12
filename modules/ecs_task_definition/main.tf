@@ -26,9 +26,6 @@ resource "aws_ecs_task_definition" "app" {
   network_mode          = "${var.awsvpc_enabled ? "awsvpc" : "bridge"}"
 
   # We need to ignore future container_definitions, and placement_constraints, as other tools take care of updating the task definition
-  lifecycle {
-    ignore_changes = ["container_definitions", "placement_constraints"]
-  }
 
   requires_compatibilities = ["${var.launch_type}"]
 }
@@ -70,11 +67,6 @@ resource "aws_ecs_task_definition" "app_with_docker_volume" {
   container_definitions = "${var.container_definitions}"
 
   network_mode = "${var.awsvpc_enabled ? "awsvpc" : "bridge"}"
-
-  # We need to ignore future container_definitions, and placement_constraints, as other tools take care of updating the task definition
-  lifecycle {
-    ignore_changes = ["container_definitions", "placement_constraints"]
-  }
 
   requires_compatibilities = ["${var.launch_type}"]
 }
