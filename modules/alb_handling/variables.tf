@@ -34,6 +34,11 @@ variable "lb_listener_arn_https" {
   default = ""
 }
 
+# redirect_http_to_https is set to create a http to https redirect
+variable "redirect_http_to_https" {
+  default = false
+}
+
 # target_type is the alb_target_group target, in case of EC2 it's instance, in case of FARGATE it's IP
 variable "target_type" {
   default = ""
@@ -89,3 +94,23 @@ variable "https_enabled" {
 
 # route53_record_identifier, sets the identifier for the route53 record in case the record type is ALIAS 
 variable "route53_record_identifier" {}
+
+# cognito_auth_enabled is set when cognito authentication is used for the https listener
+variable "cognito_auth_enabled" {
+  default = false
+}
+
+# cognito_user_pool_arn defines the cognito user pool arn for the added cognito authentication
+variable "cognito_user_pool_arn" {
+  default = ""
+}
+
+# cognito_user_pool_client_id defines the cognito_user_pool_client_id
+variable "cognito_user_pool_client_id" {
+  default = ""
+}
+
+# cognito_user_pool_domain sets the domain of the cognito_user_pool
+variable "cognito_user_pool_domain" {
+  default = ""
+}

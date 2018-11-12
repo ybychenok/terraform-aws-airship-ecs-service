@@ -1,4 +1,4 @@
-# AWS ECS Service Terraform Module [![Build Status](https://travis-ci.org/blinkist/terraform-aws-airship-ecs-service.svg?branch=master)](https://travis-ci.org/blinkist/terraform-aws-airship-ecs-service)
+# AWS ECS Service Terraform Module [![Build Status](https://travis-ci.org/blinkist/terraform-aws-airship-ecs-service.svg?branch=master)](https://travis-ci.org/blinkist/terraform-aws-airship-ecs-service) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
 
 ![](https://raw.githubusercontent.com/blinkist/airship-tf-ecs-service/master/_readme_resources/airship.png)
 
@@ -88,8 +88,10 @@ The Role ARN of the ECS Service is exported, and can be used to add other permis
 * [x] Deregistration delay parameter allows for fast deployments
 * [x] The scheduling_strategy DAEMON/REPLICA can be set 
 * [x] Adding of Volumes / Mountpoints in case Docker Volume Drivers are used.
+* [x] HTTP to HTTP Redirect functionality
+* [x] Cognito Auth for https endpoints
 * [ ] ECS Service discovery
-* [ ] Path based ALB Rules 
+* [ ] Path based ALB Rules
 * [ ] SSL SNI Adding for custom hostnames
 * [ ] Integrated IAM Permissions for *
 
@@ -147,6 +149,23 @@ module "demo_web" {
 
     # The amount time for Elastic Load Balancing to wait before changing the state of a deregistering target from draining to unused. The range is 0-3600 seconds. 
     # deregistration_delay = "300"
+
+    # Creates a listener rule which redirects to https
+    # redirect_http_to_https = false
+
+    # cognito_auth_enabled is set when cognito authentication is used for the https listener
+    # Important to have redirect_http_to_https set to true as http authentication is only added to the https listener
+
+    # cognito_auth_enabled = false
+ 
+    # cognito_user_pool_arn defines the cognito user pool arn for the added cognito authentication
+    # cognito_user_pool_arn = ""
+ 
+    # cognito_user_pool_client_id defines the cognito_user_pool_client_id
+    # cognito_user_pool_client_id = ""
+ 
+    # cognito_user_pool_domain sets the domain of the cognito_user_pool
+    # cognito_user_pool_domain = ""
   }
 
   # custom_listen_hosts defines extra listener rules to route to the ALB Targetgroup
