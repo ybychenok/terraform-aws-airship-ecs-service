@@ -91,11 +91,26 @@ module "alb_handling" {
   # custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
   custom_listen_hosts = "${var.custom_listen_hosts}"
 
+  # redirect_http_to_https creates lb listeners which redirect incoming http traffic to https
+  redirect_http_to_https = "${lookup(var.load_balancing_properties,"redirect_http_to_https", var.default_load_balancing_properties_redirect_http_to_https)}"
+
   # health_uri defines which health-check uri the target group needs to check on for health_check
   health_uri = "${lookup(var.load_balancing_properties,"health_uri", var.default_load_balancing_properties_health_uri)}"
 
   # target_type is the alb_target_group target, in case of EC2 it's instance, in case of FARGATE it's IP
   target_type = "${var.awsvpc_enabled ? "ip" : "instance"}"
+
+  # cognito_auth_enabled is set when cognito authentication is used for the https listener
+  cognito_auth_enabled = "${lookup(var.load_balancing_properties,"cognito_auth_enabled", var.default_load_balancing_properties_cognito_auth_enabled)}"
+
+  # cognito_user_pool_arn defines the cognito user pool arn for the added cognito authentication
+  cognito_user_pool_arn = "${lookup(var.load_balancing_properties,"cognito_user_pool_arn", var.default_load_balancing_properties_cognito_user_pool_arn)}"
+
+  # cognito_user_pool_client_id defines the cognito_user_pool_client_id
+  cognito_user_pool_client_id = "${lookup(var.load_balancing_properties,"cognito_user_pool_client_id", var.default_load_balancing_properties_cognito_user_pool_client_id)}"
+
+  # cognito_user_pool_domain sets the domain of the cognito_user_pool
+  cognito_user_pool_domain = "${lookup(var.load_balancing_properties,"cognito_user_pool_domain", var.default_load_balancing_properties_cognito_user_pool_domain)}"
 }
 
 ###### CloudWatch Logs

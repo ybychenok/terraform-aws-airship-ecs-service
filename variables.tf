@@ -73,8 +73,30 @@ variable "load_balancing_properties" {
     Do we create listener rules for https
     https_enabled = true
 
+    Redirect http to https instead of serving http
+    redirect_http_to_https = false
+
     Do we want to create a subdomain for the service inside the Route53 zone
     create_route53_record = true
+
+    deregistration_delay = "300"
+
+    Creates a listener rule which redirects to https
+    redirect_http_to_https = false
+
+    cognito_auth_enabled is set when cognito authentication is used for the https listener
+    Important to have redirect_http_to_https set to true as http authentication is only added to the https listener
+
+    cognito_auth_enabled = false
+
+    cognito_user_pool_arn defines the cognito user pool arn for the added cognito authentication
+    cognito_user_pool_arn = ""
+
+    cognito_user_pool_client_id defines the cognito_user_pool_client_id
+    cognito_user_pool_client_id = ""
+
+    cognito_user_pool_domain sets the domain of the cognito_user_pool
+    cognito_user_pool_domain = ""
     */
   }
 }
@@ -109,6 +131,26 @@ variable "default_load_balancing_properties_deregistration_delay" {
 
 variable "default_load_balancing_properties_https_enabled" {
   default = true
+}
+
+variable "default_load_balancing_properties_redirect_http_to_https" {
+  default = false
+}
+
+variable "default_load_balancing_properties_cognito_auth_enabled" {
+  default = false
+}
+
+variable "default_load_balancing_properties_cognito_user_pool_arn" {
+  default = ""
+}
+
+variable "default_load_balancing_properties_cognito_user_pool_client_id" {
+  default = ""
+}
+
+variable "default_load_balancing_properties_cognito_user_pool_domain" {
+  default = ""
 }
 
 variable "default_load_balancing_properties_route53_record_identifier" {
