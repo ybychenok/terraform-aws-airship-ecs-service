@@ -1,5 +1,5 @@
 locals {
-  ecs_cluster_name = "${element(split("/",var.ecs_cluster_id),3)}"
+  ecs_cluster_name = "${basename(var.ecs_cluster_id)}"
   launch_type      = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
 }
 
@@ -140,7 +140,7 @@ module "container_definition" {
   container_name = "${var.container_name}"
 
   # If no container_image is given, we take the current one from live_task_lookup
-  container_image = "${var.container_image == "" ? module.live_task_lookup.image: var.container_image}"
+  container_image = "${module.live_task_lookup.image == "" ? var.container_image : module.live_task_lookup.image }"
 
   container_cpu                = "${var.container_cpu}"
   container_memory             = "${var.container_memory}"
@@ -251,7 +251,7 @@ module "ecs_service" {
   # deployment_maximum_percent sets the maximum size of the deployment in % of the normal size.
   deployment_maximum_percent = "${lookup(var.capacity_properties,"deployment_maximum_percent", var.default_capacity_properties_deployment_maximum_percent)}"
 
-  # deployment_minimum_healthy_percent sets the minimum % in capacity at depployment
+  # deployment_minimum_healthy_percent sets the minimum % in capacity at deployment
   deployment_minimum_healthy_percent = "${lookup(var.capacity_properties,"deployment_minimum_healthy_percent", var.default_capacity_properties_deployment_minimum_healthy_percent)}"
 
   lb_attached = "${var.load_balancing_enabled}"
