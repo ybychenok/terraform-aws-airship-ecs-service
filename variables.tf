@@ -215,8 +215,21 @@ variable "default_capacity_properties_deployment_minimum_healthy_percent" {
   default = "100"
 }
 
+variable "force_bootstrap_container_image" {
+  default = "false"
+}
+
+# live_task_lookup_type
+# This module is capable of working around the state drift when external CICD deploys to ECS
+# By default a Lambda takes care of looking up the current container information, when the type is set to `lambda`
+# When the type is set to `datasource` regular terraform datasources are used to look-up the current container
+# Downside of datasource is that it cannot be used for bootstrapping
+variable "live_task_lookup_type" {
+  default = "lambda"
+}
+
 # image_url defines the docker image location
-variable "container_image" {}
+variable "bootstrap_container_image" {}
 
 # Container name 
 variable "container_name" {

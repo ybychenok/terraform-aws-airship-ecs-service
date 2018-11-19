@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const ecs = new AWS.ECS();
 
 var returnMap = {
-  'image': '',
+  'image': '<ECS_SERVICE_DOES_NOT_EXIST_YET>',
   'memory_reservation': '',
   'cpu': '',
   'memory': '',

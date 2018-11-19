@@ -74,6 +74,7 @@ The default logging driver configured for the ECS Service is AWS Logging.
 The Role ARN of the ECS Service is exported, and can be used to add other permissions e.g. to allow a service to make a cloudfront invalidation.
 
 ## Features
+* [x] Has an integrated workaround to cope with the state drift when deploying new Task definitions externally
 * [x] Can be conditionally created
 * [x] Creates all necessary IAM Roles for running an ECS Service
 * [x] Integrated IAM Permissions for KMS
@@ -101,7 +102,7 @@ The Role ARN of the ECS Service is exported, and can be used to add other permis
 
 module "demo_web" {
   source  = "blinkist/airship-ecs-service/aws"
-  version = "0.6.1"
+  version = "0.8.1"
 
   name   = "demo-web"
 
@@ -174,7 +175,11 @@ module "demo_web" {
   container_cpu    = 256
   container_memory = 512
   container_port   = 80
-  container_image  = "nginx:latest"
+
+  # force_bootstrap_container_image to true will force the deployment to use var.bootstrap_container_image as container_image
+  # if container_image is already deployed, no actual service update will happen
+  # force_bootstrap_container_image = false
+  bootstrap_container_image = "nginx:stable"
 
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {
@@ -235,7 +240,7 @@ module "demo_web" {
 
 module "demo_web" {
   source  = "blinkist/airship-ecs-service/aws"
-  version = "0.6.1"
+  version = "0.8.1"
 
   name   = "demo-worker"
 
@@ -255,7 +260,7 @@ module "demo_web" {
   container_cpu    = 256
   container_memory = 512
   container_port   = 80
-  container_image  = "nginx:latest"
+  bootstrap_container_image  = "nginx:latest"
 
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {
@@ -279,7 +284,7 @@ module "demo_web" {
 
 module "demo_web" {
   source  = "blinkist/airship-ecs-service/aws"
-  version = "0.6.1"
+  version = "0.8.1"
 
   name   = "demo5-web"
 
@@ -308,7 +313,7 @@ module "demo_web" {
   container_cpu    = 256
   container_memory = 512
   container_port   = 80
-  container_image  = "nginx:latest"
+  bootstrap_container_image  = "nginx:latest"
 
   # Initial ENV Variables for the ECS Task definition
   container_envvars  {

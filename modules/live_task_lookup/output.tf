@@ -8,11 +8,13 @@ locals {
     task_revision      = ""
   }
 
+  # Lambda invoke returns a map, but as it's inside a conditional coalescelist make sure it can be looked up when it does not exist
   safe_lambda_lookup = "${coalescelist(data.aws_lambda_invocation.lambda_lookup.*.result_map, list(local.empty_lookup))}"
 
-  ## again extract first element of the list
+  # First item of the list is the actual map
   lambda_lookup = "${local.safe_lambda_lookup[0]}"
 
+  # data.aws_ecs_container_definition.lookup returns a map, coalescelist again makes it save to use inside a conditional
   environment_coalesce = "${coalescelist(data.aws_ecs_container_definition.lookup.*.environment, list(map()))}"
 }
 
