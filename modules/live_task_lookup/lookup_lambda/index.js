@@ -6,7 +6,7 @@ var returnMap = {
   'memory_reservation': '',
   'cpu': '',
   'memory': '',
-  'environment': [],
+  'environment': '',
   'task_revision': ''
 };
 
@@ -35,10 +35,7 @@ exports.handler = async (event) => {
     const error = new AirshipLambdaError("multiple services with name %s found in cluster %s Not Found" % event.ecs_service, event.ecs_cluster);
     throw error;
   } else if (res.services.length < 1) {
-    return {
-      statusCode: 200,
-      body: returnMap
-    };
+    return returnMap;
   }
 
   //
