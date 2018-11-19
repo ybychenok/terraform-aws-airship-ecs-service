@@ -1,6 +1,6 @@
 # We need the AWS Account ID for the SSM Permissions
 data "aws_caller_identity" "current" {
-  count = "${var.create ?  1 : 0 }"
+  count = "${var.create ? 1 : 0 }"
 }
 
 # Assume Role Policy for the ECS Task
@@ -125,4 +125,77 @@ resource "aws_iam_role_policy" "s3_ro_permissions" {
   name   = "s3-readonly-policy"
   role   = "${aws_iam_role.ecs_tasks_role.id}"
   policy = "${data.aws_iam_policy_document.s3_ro_permissions.json}"
+}
+
+### Lambda Support Role
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE INVOCATION POLICY
+# We need to permit the lambda be used @Edge as well as in the traditional manner.
+# ---------------------------------------------------------------------------------------------------------------------
+data "aws_iam_policy_document" "lambdaPolicy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type = "Service"
+
+      identifiers = [
+        "lambda.amazonaws.com",
+      ]
+    }
+  }
+}
+
+resource "aws_iam_role" "lambda_lookup" {
+  name               = "ecs-lambda-lookup-${var.name}"
+  description        = "Role permitting Lambda functions to be invoked from Lambda or Lambda@Edge"
+  assume_role_policy = "${data.aws_iam_policy_document.lambdaPolicy.json}"
+}
+
+data "aws_iam_policy_document" "logging_policy_document" {
+  statement {
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["${format("arn:aws:logs:%s:%s:log-group:/aws/lambda/%s-lambda-lookup:*",var.region, data.aws_caller_identity.current.account_id, var.name)}"]
+    effect    = "Allow"
+  }
+
+  statement {
+    actions = ["logs:PutLogEvents"]
+
+    resources = ["${format("arn:aws:logs:%s:%s:log-group:/aws/lambda/%s-lambda-lookup:*.*",var.region, data.aws_caller_identity.current.account_id, var.name)}"]
+    effect    = "Allow"
+  }
+}
+
+data "aws_iam_policy_document" "support_lambda_ecs_permissions" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecs:DeregisterTaskDefinition",
+      "ecs:DescribeServices",
+      "ecs:DescribeTaskDefinition",
+      "ecs:DescribeTasks",
+      "ecs:ListTasks",
+      "ecs:ListTaskDefinitions",
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "lambda_log_policy" {
+  role   = "${aws_iam_role.lambda_lookup.name}"
+  policy = "${data.aws_iam_policy_document.logging_policy_document.json}"
+}
+
+resource "aws_iam_role_policy" "lambda_lookup_policy" {
+  role   = "${aws_iam_role.lambda_lookup.name}"
+  policy = "${data.aws_iam_policy_document.support_lambda_ecs_permissions.json}"
 }

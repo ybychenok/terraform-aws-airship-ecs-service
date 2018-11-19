@@ -124,11 +124,12 @@ resource "aws_cloudwatch_log_group" "app" {
 # This module is used to lookup the currently used ecs task definition
 #
 module "live_task_lookup" {
-  source           = "./modules/live_task_lookup/"
-  create           = "${ var.create && var.container_image == ""}"
-  ecs_cluster_id   = "${var.ecs_cluster_id}"
-  ecs_service_name = "${var.name}"
-  container_name   = "${var.container_name}"
+  source                 = "./modules/live_task_lookup/"
+  create                 = "${ var.create && var.container_image == ""}"
+  ecs_cluster_id         = "${var.ecs_cluster_id}"
+  ecs_service_name       = "${var.name}"
+  container_name         = "${var.container_name}"
+  lambda_lookup_role_arn = "${module.iam.lambda_lookup_role_arn}"
 }
 
 #
@@ -253,7 +254,7 @@ module "ecs_service" {
   # deployment_minimum_healthy_percent sets the minimum % in capacity at depployment
   deployment_minimum_healthy_percent = "${lookup(var.capacity_properties,"deployment_minimum_healthy_percent", var.default_capacity_properties_deployment_minimum_healthy_percent)}"
 
-  lb_attached = "${length(lookup(var.load_balancing_properties,"lb_arn", "")) > 0 ? true : false}"
+  lb_attached = "${var.load_balancing_enabled}"
 
   # awsvpc_subnets defines the subnets for an awsvpc ecs module
   awsvpc_subnets = "${var.awsvpc_subnets}"

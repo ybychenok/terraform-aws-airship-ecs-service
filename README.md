@@ -333,5 +333,15 @@ module "demo_web" {
 ```
 
 ## Outputs
-ecs_taskrole_arn - The ARN of the IAM Role for this task, can be used to add attach other IAM Permissions
 
+| Name | Description |
+|------|-------------|
+| ecs_taskrole_arn | The ARN of the Task IAM Role |
+| ecs_taskrole_name | The name of the ECS Task IAM Role |
+| lb_target_group_arn | The arn of the Target Group |
+
+## Help
+
+**Got a question?**
+
+File a GitHub [issue](https://github.com/blinkist/terraform-aws-airship-ecs-service/issues), or find us at the [Slack Community][slack] in the #airship channel.
