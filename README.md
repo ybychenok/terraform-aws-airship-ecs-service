@@ -349,4 +349,4 @@ module "demo_web" {
 
 **Got a question?**
 
-File a GitHub [issue](https://github.com/blinkist/terraform-aws-airship-ecs-service/issues), or find us at the [Slack Community][slack] in the #airship channel.
+File a GitHub [issue](https://github.com/blinkist/terraform-aws-airship-ecs-service/issues), [Slack Community](https://slack.cloudposse.com) in the #airship channel.
