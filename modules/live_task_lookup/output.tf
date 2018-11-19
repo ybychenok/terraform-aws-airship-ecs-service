@@ -18,19 +18,23 @@ locals {
 
 output "environment_json" {
   value = "${var.lookup_type == "lambda" ? 
-              lookup(local.lambda_lookup, "environment", "") : 
+              lookup(local.lambda_lookup, "environment", "") :
                 ( var.lookup_type == "datasource" ?
                    jsonencode(local.environment_coalesce[0]) : "" )}"
 }
 
 output "image" {
-  value = "${data.aws_lambda_invocation.lambda_lookup.result_map["image"]}"
-
-  #value = "${var.lookup_type == "lambda" ? 
-  #            lookup(local.lambda_lookup, "image", "") : 
-  #              ( var.lookup_type == "datasource" ? 
-  #                 element(concat(data.aws_ecs_container_definition.lookup.*.image, list("")), 0) : "" )}"
+  value = "${var.lookup_type == "lambda" ? 
+                lookup(local.lambda_lookup, "image", "") : 
+                  ( var.lookup_type == "datasource" ? 
+                     element(concat(data.aws_ecs_container_definition.lookup.*.image, list("")), 0) : "" )}"
 }
+
+# Working
+#  value = "${element(concat(data.aws_ecs_container_definition.lookup.*.image, list("")), 0)}"
+
+# Not working
+#  value = "${data.aws_lambda_invocation.lambda_lookup.result_map["image"]}"
 
 output "cpu" {
   value = "${var.lookup_type == "lambda" ? 

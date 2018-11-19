@@ -32,18 +32,18 @@ JSON
 # lookup_type datasource
 #
 data "aws_ecs_service" "lookup" {
-  count        = "${var.lookup_type == "datasource" ? 1 : 0 }"
+  #  count        = "${var.lookup_type == "datasource" ? 1 : 0 }"
   service_name = "${var.ecs_service_name}"
   cluster_arn  = "${var.ecs_cluster_id}"
 }
 
 data "aws_ecs_task_definition" "lookup" {
-  count           = "${var.lookup_type == "datasource" ? 1 : 0 }"
+  #  count           = "${var.lookup_type == "datasource" ? 1 : 0 }"
   task_definition = "${data.aws_ecs_service.lookup.task_definition}"
 }
 
 data "aws_ecs_container_definition" "lookup" {
-  count           = "${var.lookup_type == "datasource" ? 1 : 0 }"
+  #  count           = "${var.lookup_type == "datasource" ? 1 : 0 }"
   task_definition = "${data.aws_ecs_service.lookup.task_definition}"
   container_name  = "${var.container_name}"
 }
