@@ -30,12 +30,6 @@ output "image" {
                      element(concat(data.aws_ecs_container_definition.lookup.*.image, list("")), 0) : "" )}"
 }
 
-# Working
-#  value = "${element(concat(data.aws_ecs_container_definition.lookup.*.image, list("")), 0)}"
-
-# Not working
-#  value = "${data.aws_lambda_invocation.lambda_lookup.result_map["image"]}"
-
 output "cpu" {
   value = "${var.lookup_type == "lambda" ? 
               lookup(local.lambda_lookup, "cpu", "") : 
