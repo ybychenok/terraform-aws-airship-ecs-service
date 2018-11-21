@@ -11,6 +11,10 @@ resource "aws_lambda_function" "lambda_lookup" {
   role             = "${var.lambda_lookup_role_arn}"
   publish          = true
   tags             = "${var.tags}"
+
+  lifecycle {
+    ignore_changes = ["filename"]
+  }
 }
 
 data "aws_lambda_invocation" "lambda_lookup" {
