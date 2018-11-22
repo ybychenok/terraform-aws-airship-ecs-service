@@ -133,7 +133,7 @@ resource "aws_iam_role_policy" "s3_ro_permissions" {
 # CREATE INVOCATION POLICY
 # We need to permit the lambda be used @Edge as well as in the traditional manner.
 # ---------------------------------------------------------------------------------------------------------------------
-data "aws_iam_policy_document" "lambdaPolicy" {
+data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -149,8 +149,8 @@ data "aws_iam_policy_document" "lambdaPolicy" {
 
 resource "aws_iam_role" "lambda_lookup" {
   name               = "ecs-lambda-lookup-${var.name}"
-  description        = "Role permitting Lambda functions to be invoked from Lambda or Lambda@Edge"
-  assume_role_policy = "${data.aws_iam_policy_document.lambdaPolicy.json}"
+  description        = "Role permitting Lambda functions to be invoked from Lambda"
+  assume_role_policy = "${data.aws_iam_policy_document.lambda_policy.json}"
 }
 
 data "aws_iam_policy_document" "logging_policy_document" {
