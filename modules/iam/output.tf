@@ -12,3 +12,13 @@ output "ecs_taskrole_arn" {
 output "ecs_taskrole_name" {
   value = "${element(concat(aws_iam_role.ecs_tasks_role.*.name, list("")), 0)}"
 }
+
+# IAM Role arn of the lambda lookup helper
+output "lambda_lookup_role_arn" {
+  value = "${element(concat(aws_iam_role.lambda_lookup.*.arn, list("")), 0)}"
+}
+
+# IAM Role name of the lambda lookup helper
+output "lambda_lookup_role_name" {
+  value = "${element(concat(aws_iam_role.lambda_lookup.*.name, list("")), 0)}"
+}

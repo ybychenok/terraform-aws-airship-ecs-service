@@ -1,9 +1,5 @@
 variable "ecs_container_name" {}
 
-variable "allow_terraform_deploy" {
-  default = "true"
-}
-
 # Reflecting the current state
 
 variable "aws_ecs_task_definition_family" {}

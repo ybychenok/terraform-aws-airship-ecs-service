@@ -1,5 +1,5 @@
 locals {
-  ecs_cluster_name = "${element(split("/",var.ecs_cluster_id),3)}"
+  ecs_cluster_name = "${basename(var.ecs_cluster_id)}"
   launch_type      = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
 }
 
@@ -124,11 +124,13 @@ resource "aws_cloudwatch_log_group" "app" {
 # This module is used to lookup the currently used ecs task definition
 #
 module "live_task_lookup" {
-  source           = "./modules/live_task_lookup/"
-  create           = "${ var.create && var.container_image == ""}"
-  ecs_cluster_id   = "${var.ecs_cluster_id}"
-  ecs_service_name = "${var.name}"
-  container_name   = "${var.container_name}"
+  source                 = "./modules/live_task_lookup/"
+  create                 = "${var.create}"
+  ecs_cluster_id         = "${var.ecs_cluster_id}"
+  ecs_service_name       = "${var.name}"
+  container_name         = "${var.container_name}"
+  lambda_lookup_role_arn = "${module.iam.lambda_lookup_role_arn}"
+  lookup_type            = "${var.live_task_lookup_type}"
 }
 
 #
@@ -138,8 +140,11 @@ module "container_definition" {
   source         = "./modules/ecs_container_definition/"
   container_name = "${var.container_name}"
 
-  # If no container_image is given, we take the current one from live_task_lookup
-  container_image = "${var.container_image == "" ? module.live_task_lookup.image: var.container_image}"
+  # if var.force_bootstrap_container_image is enabled, we always take the terraform param as container_image
+  # otherwise we take the image from the datasource lookup
+  # when the lookup has '<ECS_SERVICE_DOES_NOT_EXIST_YET>' as result, the bootstrap image is taken
+  container_image = "${var.force_bootstrap_container_image ? var.bootstrap_container_image :
+                         ( module.live_task_lookup.image == "<ECS_SERVICE_DOES_NOT_EXIST_YET>" ? var.bootstrap_container_image : module.live_task_lookup.image )}"
 
   container_cpu                = "${var.container_cpu}"
   container_memory             = "${var.container_memory}"
@@ -250,10 +255,10 @@ module "ecs_service" {
   # deployment_maximum_percent sets the maximum size of the deployment in % of the normal size.
   deployment_maximum_percent = "${lookup(var.capacity_properties,"deployment_maximum_percent", var.default_capacity_properties_deployment_maximum_percent)}"
 
-  # deployment_minimum_healthy_percent sets the minimum % in capacity at depployment
+  # deployment_minimum_healthy_percent sets the minimum % in capacity at deployment
   deployment_minimum_healthy_percent = "${lookup(var.capacity_properties,"deployment_minimum_healthy_percent", var.default_capacity_properties_deployment_minimum_healthy_percent)}"
 
-  lb_attached = "${length(lookup(var.load_balancing_properties,"lb_arn", "")) > 0 ? true : false}"
+  lb_attached = "${var.load_balancing_enabled}"
 
   # awsvpc_subnets defines the subnets for an awsvpc ecs module
   awsvpc_subnets = "${var.awsvpc_subnets}"
