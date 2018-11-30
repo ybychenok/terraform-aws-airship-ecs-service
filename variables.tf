@@ -37,9 +37,9 @@ variable "custom_listen_hosts" {
   type    = "list"
 }
 
-# load_balancing_enabled defines if we are using a load balancer for our ecs service
-variable "load_balancing_enabled" {
-  default = false
+# load_balancing_type is either "none", "network","application"
+variable "load_balancing_type" {
+  default = "none"
 }
 
 ## load_balancing_properties map defines the map for services hooked to a load balancer
@@ -57,6 +57,12 @@ variable "load_balancing_properties" {
 
     lb_listener_arn_https is the ALB listener arn for HTTPS
     lb_listener_arn_https = ""
+
+    nlb_listener_port is the default port for the Network Load Balancer to listen on
+    nlb_listener_port = "80"
+
+    target_group_port sets the port for the alb or nlb target group, this generally can stay 80 regardless of the service port
+    target_group_port  = "80"
 
     lb_vpc_id is the vpc_id for the target_group to reside in
     lb_vpc_id = ""
@@ -119,6 +125,14 @@ variable "default_load_balancing_properties_route53_zone_id" {
 
 variable "default_load_balancing_properties_health_uri" {
   default = "/ping"
+}
+
+variable "default_load_balancing_properties_nlb_listener_port" {
+  default = "80"
+}
+
+variable "default_load_balancing_properties_target_group_port" {
+  default = "80"
 }
 
 variable "default_load_balancing_properties_unhealthy_threshold" {
