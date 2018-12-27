@@ -21,6 +21,16 @@ variable "awsvpc_enabled" {
   default = false
 }
 
+# Number of days for the cloudwatch logs for the containers to be retained
+variable "log_retention_in_days" {
+  default = "14"
+}
+
+# kms_key for the cloudwatch logs
+variable "cloudwatch_kms_key" {
+  default = ""
+}
+
 # scheduling_strategy defaults to REPLICA
 variable "scheduling_strategy" {
   default = "REPLICA"
@@ -266,6 +276,12 @@ variable "container_port" {
   default = ""
 }
 
+# healthcheck, describes the extra HEALTHCHECK for the container
+variable "container_healthcheck" {
+  type    = "map"
+  default = {}
+}
+
 variable "host_port" {
   default = ""
 }
@@ -422,4 +438,40 @@ variable "mountpoints" {
 variable "ecs_cron_tasks" {
   type    = "list"
   default = []
+}
+
+variable "service_discovery_enabled" {
+  default = "false"
+}
+
+## Defaults for the service_discovery_properties
+variable "service_discovery_properties_defaults" {
+  type = "map"
+
+  default = {
+    namespace_id                         = ""
+    dns_ttl                              = "60"
+    dns_type                             = "A"
+    routing_policy                       = "MULTIVALUE"
+    healthcheck_custom_failure_threshold = "1"
+  }
+}
+
+## Input for the service discovery properties, overwriting the service_discovery_properties_defaults
+variable "service_discovery_properties" {
+  type = "map"
+
+  default = {}
+}
+
+locals {
+  service_discovery_properties = "${merge(
+     var.service_discovery_properties_defaults,
+     var.service_discovery_properties)}"
+}
+
+variable "tags" {
+  description = "A map of tags to apply to all taggable resources"
+  type        = "map"
+  default     = {}
 }

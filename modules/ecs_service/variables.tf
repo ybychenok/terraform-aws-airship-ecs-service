@@ -59,3 +59,41 @@ variable "load_balancing_type" {}
 
 # Spread tasks over ECS Cluster based on AZ, Instance-id, memory
 variable "with_placement_strategy" {}
+
+variable "health_check_grace_period_seconds" {
+  default = "300"
+}
+
+variable "tags" {
+  type    = "map"
+  default = {}
+}
+
+variable "service_discovery_enabled" {
+  default = "false"
+}
+
+# The service discovery namespace arn to register the services against
+variable "service_discovery_namespace_id" {
+  default = ""
+}
+
+# Service Discovery DNS TTL
+variable "service_discovery_dns_ttl" {
+  default = "60"
+}
+
+# Service Discovery DNS Type
+variable "service_discovery_dns_type" {
+  default = "SRV"
+}
+
+# Service Discovery routing policy
+variable "service_discovery_routing_policy" {
+  default = "MULTIVALUE"
+}
+
+# Service Discovery customer failure thresholds, needs to be set to at least 1
+variable "service_discovery_healthcheck_custom_failure_threshold" {
+  default = "1"
+}

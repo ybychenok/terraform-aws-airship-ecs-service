@@ -1,6 +1,12 @@
 locals {
   ecs_cluster_name = "${basename(var.ecs_cluster_id)}"
   launch_type      = "${var.fargate_enabled ? "FARGATE" : "EC2" }"
+
+  name_map = {
+    "Name" = "${local.ecs_cluster_name}-${var.name}"
+  }
+
+  tags = "${merge(var.tags, local.name_map)}"
 }
 
 #
@@ -128,7 +134,8 @@ module "alb_handling" {
 resource "aws_cloudwatch_log_group" "app" {
   count             = "${var.create ? 1 : 0}"
   name              = "${local.ecs_cluster_name}/${var.name}"
-  retention_in_days = 14
+  retention_in_days = "${var.log_retention_in_days}"
+  kms_key_id        = "${var.cloudwatch_kms_key}"
 }
 
 #
@@ -170,6 +177,8 @@ module "container_definition" {
   container_envvars = "${var.container_envvars}"
 
   mountpoints = ["${var.mountpoints}"]
+
+  healthcheck = "${var.container_healthcheck}"
 
   log_options = {
     "awslogs-region"        = "${var.region}"
@@ -301,6 +310,28 @@ module "ecs_service" {
 
   # This way we force the aws_lb_listener_rule to have finished before creating the ecs_service
   aws_lb_listener_rules = "${module.alb_handling.aws_lb_listener_rules}"
+
+  # https://aws.amazon.com/blogs/aws/amazon-ecs-service-discovery/
+  # service_discovery_enabled defaults to false
+  service_discovery_enabled = "${var.service_discovery_enabled}"
+
+  # Should error when service_discovery_enabled is set and no namespace_id is given
+  service_discovery_namespace_id = "${lookup(local.service_discovery_properties,"namespace_id")}"
+
+  # ttl of the service discovery records, default 60
+  service_discovery_dns_ttl = "${lookup(local.service_discovery_properties,"dns_ttl")}"
+
+  # dns_type defaults to A (AWSVPC)
+  service_discovery_dns_type = "${lookup(local.service_discovery_properties,"dns_type")}"
+
+  # routing_policy def
+  service_discovery_routing_policy = "${lookup(local.service_discovery_properties,"routing_policy")}"
+
+  # healthcheck_custom_failure_threshold needed, set to 1 by default
+  service_discovery_healthcheck_custom_failure_threshold = "${lookup(local.service_discovery_properties,"healthcheck_custom_failure_threshold")}"
+
+  # tags
+  tags = "${local.tags}"
 }
 
 #
