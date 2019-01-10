@@ -109,3 +109,33 @@ variable "log_options" {
     "awslogs-stream-prefix" = "default"
   }
 }
+
+# container_docker_labels sets the DockerLabels, in case it''s set, an extra
+# label '_airship_dockerlabel_hash' is set to keep track of changes.
+variable "container_docker_labels" {
+  type    = "map"
+  default = {}
+}
+
+locals {
+  # We need to inject a docker label of all the docker labels hashed for later compare
+  # if the signummed length of the input map is 1 we add the _airship_dockerlabel_hash with the md5 sum of the map
+  # if the signummed length of the input map is 0 we merge with an empty map, effectively doing nothing.
+  docker_label_merge = {
+    "0" = {}
+
+    "1" = {
+      _airship_dockerlabel_hash = "${md5(jsonencode(var.container_docker_labels))}"
+    }
+  }
+
+  docker_labels = "${merge(
+     var.container_docker_labels,
+     local.docker_label_merge[signum(length(var.container_docker_labels))])}"
+}
+
+variable "tags" {
+  description = "A map of tags to apply to all taggable resources"
+  type        = "map"
+  default     = {}
+}
