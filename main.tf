@@ -71,6 +71,12 @@ module "alb_handling" {
   # lb_arn defines the arn of the LB
   lb_arn = "${lookup(local.load_balancing_properties,"lb_arn")}"
 
+  # lb_dns_name sets the fqdn of the LB
+  lb_dns_name = "${lookup(local.load_balancing_properties,"lb_dns_name")}"
+
+  # lb_zone_id sets the zone_id of the LB
+  lb_zone_id = "${lookup(local.load_balancing_properties,"lb_zone_id")}"
+
   # lb_listener_arn is the arn of the listener ( HTTP )
   lb_listener_arn = "${lookup(local.load_balancing_properties,"lb_listener_arn")}"
 
@@ -94,7 +100,7 @@ module "alb_handling" {
 
   # route53_record_type sets the record type of the route53 record, can be ALIAS, CNAME or NONE,  defaults to CNAME
   # In case of NONE no record will be made
-  route53_record_type = "${lookup(local.load_balancing_properties,"route53_record_type")}"
+  route53_record_type = "CNAME"
 
   # Sets the zone in which the sub-domain will be added for this service
   route53_zone_id = "${lookup(local.load_balancing_properties,"route53_zone_id", "")}"

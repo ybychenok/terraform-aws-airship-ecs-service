@@ -70,6 +70,12 @@ locals {
     # lb_arn is the arn of the LB
     lb_arn = ""
 
+    # lb_dns_name sets the fqdn of the LB
+    lb_dns_name = ""
+
+    # lb_zone_id sets the zone_id of the LB
+    lb_zone_id = ""
+
     # lb_listener_arn is the ALB listener arn for HTTP
     lb_listener_arn = ""
 

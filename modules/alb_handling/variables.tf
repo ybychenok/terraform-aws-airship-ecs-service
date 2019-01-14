@@ -29,6 +29,16 @@ variable "lb_arn" {
   default = ""
 }
 
+# lb_dns_name sets the fqdn of the LB
+variable "lb_dns_name" {
+  default = ""
+}
+
+# lb_zone_id sets the zone_id of the LB
+variable "lb_zone_id" {
+  default = ""
+}
+
 # lb_listener_arn is the arn of the lb_listener ( HTTP )
 variable "lb_listener_arn" {
   default = ""

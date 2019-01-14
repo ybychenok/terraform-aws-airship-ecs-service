@@ -1,8 +1,3 @@
-data "aws_lb" "main" {
-  count = "${var.create ? 1 : 0}"
-  arn   = "${var.lb_arn}"
-}
-
 locals {
   # Validate the load_balancing_type type by looking up the map with var.allowed_load_balancing_types
   validate_load_balancing_type = "${lookup(var.allowed_load_balancing_types,var.load_balancing_type)}"
@@ -16,24 +11,24 @@ locals {
 
 ## Route53 DNS Record
 resource "aws_route53_record" "record" {
-  count   = "${(var.create && local.route53_record_type == "CNAME" ) ? 1 : 0 }"
+  count   = "${var.create && var.route53_record_type == "CNAME" ? 1 : 0 }"
   zone_id = "${var.route53_zone_id}"
   name    = "${var.route53_name}"
   type    = "CNAME"
   ttl     = "300"
-  records = ["${data.aws_lb.main.dns_name}"]
+  records = ["${var.lb_dns_name}"]
 }
 
 ## Route53 DNS Record
 resource "aws_route53_record" "record_alias_a" {
-  count   = "${(var.create && local.route53_record_type == "ALIAS") ? 1 : 0 }"
+  count   = "${var.create && var.route53_record_type == "ALIAS" ? 1 : 0 }"
   zone_id = "${var.route53_zone_id}"
   name    = "${var.route53_name}"
   type    = "A"
 
   alias {
-    name                   = "${data.aws_lb.main.dns_name}"
-    zone_id                = "${data.aws_lb.main.zone_id}"
+    name                   = "${var.lb_dns_name}"
+    zone_id                = "${var.lb_zone_id}"
     evaluate_target_health = false
   }
 
@@ -98,7 +93,7 @@ resource "aws_lb_target_group" "service" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing" {
-  count = "${var.create && var.load_balancing_type == "application" && ! var.redirect_http_to_https && local.route53_record_type != "NONE" ? 1 : 0 }"
+  count = "${var.create && var.load_balancing_type == "application" && ! var.redirect_http_to_https && var.route53_record_type != "NONE" ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn}"
 
@@ -121,7 +116,7 @@ resource "aws_lb_listener_rule" "host_based_routing" {
 ##
 ## aws_lb_listener_rule which redirects http to https
 resource "aws_lb_listener_rule" "host_based_routing_redirect_to_https" {
-  count = "${var.create && var.load_balancing_type == "application" && var.redirect_http_to_https && local.route53_record_type != "NONE" ? 1 : 0 }"
+  count = "${var.create && var.load_balancing_type == "application" && var.redirect_http_to_https && var.route53_record_type != "NONE" ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn}"
 
@@ -149,7 +144,7 @@ resource "aws_lb_listener_rule" "host_based_routing_redirect_to_https" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_ssl" {
-  count = "${var.create && var.load_balancing_type == "application" && ! var.cognito_auth_enabled && local.route53_record_type != "NONE" ? 1 : 0 }"
+  count = "${var.create && var.load_balancing_type == "application" && ! var.cognito_auth_enabled && var.route53_record_type != "NONE" ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
 
@@ -172,7 +167,7 @@ resource "aws_lb_listener_rule" "host_based_routing_ssl" {
 ##
 ## An aws_lb_listener_rule will only be created when a service has a load balancer attached
 resource "aws_lb_listener_rule" "host_based_routing_ssl_cognito_auth" {
-  count = "${var.create && var.load_balancing_type == "application" && var.cognito_auth_enabled && local.route53_record_type != "NONE" ? 1 : 0 }"
+  count = "${var.create && var.load_balancing_type == "application" && var.cognito_auth_enabled && var.route53_record_type != "NONE" ? 1 : 0 }"
 
   listener_arn = "${var.lb_listener_arn_https}"
 
