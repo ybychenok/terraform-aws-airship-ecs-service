@@ -87,9 +87,9 @@ variable "mountpoints" {
   default = []
 
   # {
-  #   source_volume = "service-storage"
-  #   container_path = "/foo"
-  #   read_only = "false"
+  #   sourceVolume = "service-storage"
+  #   containerPath = "/foo"
+  #   readOnly = "false"
   # },
 }
 
