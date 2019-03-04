@@ -21,6 +21,24 @@ variable "awsvpc_enabled" {
   default = false
 }
 
+variable "create_log_group" {
+  default = true
+}
+
+variable "log_driver" {
+  default = "awslogs"
+}
+
+variable "log_options" {
+  description = "The configuration options to send to the log_driver."
+
+  default = {
+    "awslogs-region"        = "us-west-2"
+    "awslogs-group"         = "default"
+    "awslogs-stream-prefix" = "default"
+  }
+}
+
 # Number of days for the cloudwatch logs for the containers to be retained
 variable "log_retention_in_days" {
   default = "14"

@@ -136,7 +136,8 @@ module "alb_handling" {
 
 ###### CloudWatch Logs
 resource "aws_cloudwatch_log_group" "app" {
-  count             = "${var.create ? 1 : 0}"
+  # count             = "${var.create ? 1 : 0}"
+  count             = "${(var.create && var.create_log_group) ? 1 : 0 }"
   name              = "${local.ecs_cluster_name}/${var.name}"
   retention_in_days = "${var.log_retention_in_days}"
   kms_key_id        = "${var.cloudwatch_kms_key}"
@@ -186,11 +187,8 @@ module "container_definition" {
 
   healthcheck = "${var.container_healthcheck}"
 
-  log_options = {
-    "awslogs-region"        = "${var.region}"
-    "awslogs-group"         = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
-    "awslogs-stream-prefix" = "${var.name}"
-  }
+  log_driver  = "${var.log_driver}"
+  log_options = "${var.log_options}"
 }
 
 #
